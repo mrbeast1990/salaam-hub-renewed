@@ -52,8 +52,8 @@ async function loadDashboard(): Promise<Dashboard> {
       .eq("transaction_date", today),
     supabase.from("v_treasury_balance").select("method, balance"),
     supabase.from("v_customer_balance").select("balance"),
-    supabase.from("v_product_stock").select("product_id, stock"),
-    supabase.from("products").select("id, name, low_stock_threshold").eq("active", true),
+    supabase.from("v_product_stock").select("product_id, on_hand"),
+    supabase.from("products").select("id, name, min_stock").eq("active", true),
   ]);
 
   const firstError =
@@ -61,7 +61,7 @@ async function loadDashboard(): Promise<Dashboard> {
   if (firstError) throw firstError;
 
   const stockMap = new Map(
-    (stockRes.data ?? []).map((r) => [r.product_id as string, Number(r.stock ?? 0)]),
+    (stockRes.data ?? []).map((r) => [r.product_id as string, Number(r.on_hand ?? 0)]),
   );
 
   return {
@@ -77,7 +77,7 @@ async function loadDashboard(): Promise<Dashboard> {
         id: p.id as string,
         name: p.name as string,
         stock: stockMap.get(p.id as string) ?? 0,
-        threshold: Number(p.low_stock_threshold ?? 0),
+        threshold: Number(p.min_stock ?? 0),
       }))
       .filter((p) => p.stock <= p.threshold)
       .slice(0, 8),
