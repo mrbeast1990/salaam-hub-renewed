@@ -10,9 +10,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postSale } from "@/lib/sales/sales.functions";
 import { useNavigate } from "@tanstack/react-router";
 import { v4 as uuidv4 } from "uuid";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postSale } from "@/lib/sales/sales.functions";
-import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/pos")({
@@ -92,7 +89,9 @@ function POSPage() {
         })),
       };
       
-      return postSale(payload);
+      // Use useServerFn or call directly if imported from functions.ts
+      // In TanStack Start, we usually call the exported function directly
+      return postSale({ data: payload });
     },
     onSuccess: (saleId) => {
       toast.success("تم حفظ الفاتورة بنجاح");
@@ -116,7 +115,7 @@ function POSPage() {
   return (
     <div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.12))] -m-4 overflow-hidden rtl">
       {/* Products Area */}
-      <div className="flex-1 p-4 bg-background border-l">
+      <div className="flex-1 p-4 bg-background border-l overflow-hidden flex flex-col">
         <POSProducts onAdd={handleAddToCart} />
       </div>
 
@@ -151,7 +150,7 @@ function POSPage() {
           </DialogHeader>
           <PartyForm 
             type="customer" 
-            onSuccess={(customer) => {
+            onSuccess={(customer: any) => {
               setSelectedCustomer(customer);
               setIsNewCustomerOpen(false);
               queryClient.invalidateQueries({ queryKey: ["customers-pos"] });
