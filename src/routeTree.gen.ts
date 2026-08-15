@@ -30,6 +30,7 @@ import { Route as AuthenticatedPurchasesNewRouteImport } from './routes/_authent
 import { Route as ApiPrintStatementPartyIdRouteImport } from './routes/api/print/statement/$partyId'
 import { Route as ApiPrintSaleSaleIdRouteImport } from './routes/api/print/sale/$saleId'
 import { Route as ApiPrintPurchasePurchaseIdRouteImport } from './routes/api/print/purchase/$purchaseId'
+import { Route as ApiPrintPaymentPaymentIdRouteImport } from './routes/api/print/payment/$paymentId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -139,6 +140,12 @@ const ApiPrintPurchasePurchaseIdRoute =
     path: '/api/print/purchase/$purchaseId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPrintPaymentPaymentIdRoute =
+  ApiPrintPaymentPaymentIdRouteImport.update({
+    id: '/api/print/payment/$paymentId',
+    path: '/api/print/payment/$paymentId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/purchases/new': typeof AuthenticatedPurchasesNewRoute
   '/returns/new': typeof AuthenticatedReturnsNewRoute
+  '/api/print/payment/$paymentId': typeof ApiPrintPaymentPaymentIdRoute
   '/api/print/purchase/$purchaseId': typeof ApiPrintPurchasePurchaseIdRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
   '/api/print/statement/$partyId': typeof ApiPrintStatementPartyIdRoute
@@ -180,6 +188,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/purchases/new': typeof AuthenticatedPurchasesNewRoute
   '/returns/new': typeof AuthenticatedReturnsNewRoute
+  '/api/print/payment/$paymentId': typeof ApiPrintPaymentPaymentIdRoute
   '/api/print/purchase/$purchaseId': typeof ApiPrintPurchasePurchaseIdRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
   '/api/print/statement/$partyId': typeof ApiPrintStatementPartyIdRoute
@@ -204,6 +213,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/purchases/new': typeof AuthenticatedPurchasesNewRoute
   '/_authenticated/returns/new': typeof AuthenticatedReturnsNewRoute
+  '/api/print/payment/$paymentId': typeof ApiPrintPaymentPaymentIdRoute
   '/api/print/purchase/$purchaseId': typeof ApiPrintPurchasePurchaseIdRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
   '/api/print/statement/$partyId': typeof ApiPrintStatementPartyIdRoute
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/treasury'
     | '/purchases/new'
     | '/returns/new'
+    | '/api/print/payment/$paymentId'
     | '/api/print/purchase/$purchaseId'
     | '/api/print/sale/$saleId'
     | '/api/print/statement/$partyId'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/'
     | '/purchases/new'
     | '/returns/new'
+    | '/api/print/payment/$paymentId'
     | '/api/print/purchase/$purchaseId'
     | '/api/print/sale/$saleId'
     | '/api/print/statement/$partyId'
@@ -273,6 +285,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/purchases/new'
     | '/_authenticated/returns/new'
+    | '/api/print/payment/$paymentId'
     | '/api/print/purchase/$purchaseId'
     | '/api/print/sale/$saleId'
     | '/api/print/statement/$partyId'
@@ -281,6 +294,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPrintPaymentPaymentIdRoute: typeof ApiPrintPaymentPaymentIdRoute
   ApiPrintPurchasePurchaseIdRoute: typeof ApiPrintPurchasePurchaseIdRoute
   ApiPrintSaleSaleIdRoute: typeof ApiPrintSaleSaleIdRoute
   ApiPrintStatementPartyIdRoute: typeof ApiPrintStatementPartyIdRoute
@@ -435,6 +449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPrintPurchasePurchaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/print/payment/$paymentId': {
+      id: '/api/print/payment/$paymentId'
+      path: '/api/print/payment/$paymentId'
+      fullPath: '/api/print/payment/$paymentId'
+      preLoaderRoute: typeof ApiPrintPaymentPaymentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -494,6 +515,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPrintPaymentPaymentIdRoute: ApiPrintPaymentPaymentIdRoute,
   ApiPrintPurchasePurchaseIdRoute: ApiPrintPurchasePurchaseIdRoute,
   ApiPrintSaleSaleIdRoute: ApiPrintSaleSaleIdRoute,
   ApiPrintStatementPartyIdRoute: ApiPrintStatementPartyIdRoute,
