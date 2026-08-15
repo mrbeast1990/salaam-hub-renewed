@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Loader2, 
@@ -213,7 +215,16 @@ export function SaleDetails({ saleId, onClose, onUpdate }: SaleDetailsProps) {
       {/* Footer Actions */}
       <div className="flex justify-between items-center pt-4 border-t">
         <div className="flex gap-2">
+          {sale.status === 'posted' && (
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/returns/new" search={{ type: 'sale', id: saleId }}>
+                <ArrowRight className="size-4 ml-2" />
+                إرجاع أصناف
+              </Link>
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => window.open(`/api/print/sale/${saleId}`, '_blank')}>
+
             <Printer className="size-4 ml-2" />
             طباعة الفاتورة
           </Button>
