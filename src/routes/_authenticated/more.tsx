@@ -36,10 +36,12 @@ const MENU_ITEMS = [
   {
     title: "التقارير والسجلات",
     items: [
+      { to: "/payments", label: "سجل السدادات", icon: CreditCard, description: "صرف للموردين وتحصيل من العملاء" },
       { to: "/reports", label: "التقارير المالية", icon: FileText, description: "الأرباح، المبيعات، كشوف الحسابات" },
       { to: "/audit", label: "سجل العمليات", icon: History, description: "تتبع كافة الحركات والتحقق من صحتها" },
     ]
   },
+
   {
     title: "الخزينة والحسابات",
     items: [

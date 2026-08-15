@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 /**
  * دالة جلب كشف الحساب من حركات Ledger
@@ -14,7 +15,11 @@ export const getAccountStatement = createServerFn({ method: "GET" })
     }).parse(data)
   )
   .handler(async ({ data }) => {
-    // 1. جلب رصيد أول المدة والحركات
+    // 1. Get party type first to know how to calculate running balance accurately
+    const { data: customer } = await supabase.from('customers').select('id, name').eq('id', data.party_id).single();
+    const partyType = customer ? 'customer' : 'supplier';
+
+    // 2. Fetch all movements
     const { data: ledger, error } = await supabase
       .from("party_ledger")
       .select("*")
@@ -24,9 +29,13 @@ export const getAccountStatement = createServerFn({ method: "GET" })
 
     if (error) throw error;
 
-    // 2. فلترة الحركات حسب التاريخ مع حساب الرصيد التراكمي
+    // 3. Compute running balance from the very beginning (0 + opening balance movement)
     let runningBalance = 0;
     const allMovements = ledger.map(move => {
+      // For a customer: debit increases their debt, credit reduces it
+      // For a supplier: credit increases our debt to them, debit reduces it
+      // But based on M1 views: (ob.amount + SUM(l.debit - l.credit))
+      // This means debit is ALWAYS positive for balance and credit is ALWAYS negative
       runningBalance += (Number(move.debit) - Number(move.credit));
       return {
         ...move,
@@ -34,19 +43,14 @@ export const getAccountStatement = createServerFn({ method: "GET" })
       };
     });
 
-    // 3. تطبيق فلترة التاريخ بعد حساب الرصيد التراكمي
-    // لكن المتطلب يقول: "بدأ runningBalance = 0 ثم أدرج رصيد أول المدة كحركة واحدة"
-    // حركة رصيد أول المدة موجودة بالفعل في party_ledger مع source_type = 'opening_balance'
-    
     let filtered = allMovements;
     let openingBalance = 0;
     
     if (data.from_date) {
       const fromDate = new Date(data.from_date);
-      // الرصيد الافتتاحي هو مجموع الحركات قبل التاريخ المختار
-      openingBalance = allMovements
-        .filter(m => new Date(m.transaction_date) < fromDate)
-        .reduce((sum, m) => sum + (Number(m.debit) - Number(m.credit)), 0);
+      // Movements before the start date define the 'Opening Balance' for this period
+      const preMovements = allMovements.filter(m => new Date(m.transaction_date) < fromDate);
+      openingBalance = preMovements.reduce((sum, m) => sum + (Number(m.debit) - Number(m.credit)), 0);
       
       filtered = allMovements.filter(m => new Date(m.transaction_date) >= fromDate);
     }
@@ -56,17 +60,28 @@ export const getAccountStatement = createServerFn({ method: "GET" })
       filtered = filtered.filter(m => new Date(m.transaction_date) <= toDate);
     }
 
-    // 4. حساب الملخص
+    // 4. Detailed Summary
     const totalInvoices = filtered
       .filter(m => ['sale', 'purchase'].includes(m.source_type))
-      .reduce((sum, m) => sum + (Number(m.debit) || Number(m.credit)), 0); // مبسط
-      
-    // هذا الحساب يحتاج دقة أكبر حسب نوع الطرف (customer/supplier)
-    // سنقوم بتجهيز البيانات فقط والعرض يقرر
+      .reduce((sum, m) => sum + (partyType === 'customer' ? Number(m.debit) : Number(m.credit)), 0);
+    
+    const totalPayments = filtered
+      .filter(m => m.source_type === 'payment')
+      .reduce((sum, m) => sum + (partyType === 'customer' ? Number(m.credit) : Number(m.debit)), 0);
+
+    const totalReturns = filtered
+      .filter(m => ['sale_return', 'purchase_return'].includes(m.source_type))
+      .reduce((sum, m) => sum + (partyType === 'customer' ? Number(m.credit) : Number(m.debit)), 0);
     
     return {
       movements: filtered,
       openingBalance,
       closingBalance: runningBalance,
+      summary: {
+        totalInvoices,
+        totalPayments,
+        totalReturns,
+        netMovement: runningBalance - openingBalance
+      }
     };
   });
