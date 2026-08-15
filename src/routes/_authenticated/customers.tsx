@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Plus, Search, Users, UserRound, Edit2, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Search, Users, UserRound, Edit2, AlertCircle, FileText } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PartyForm } from "@/components/parties/party-form";
+import { AccountStatement } from "@/components/parties/account-statement";
+
 
 export const Route = createFileRoute("/_authenticated/customers")({
   head: () => ({
@@ -165,21 +167,41 @@ function PartiesPage() {
       </Tabs>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedParty 
-                ? `تعديل ${activeTab === 'customer' ? 'العميل' : 'المورد'}: ${selectedParty.name}` 
+                ? `بيانات ${activeTab === 'customer' ? 'العميل' : 'المورد'}: ${selectedParty.name}` 
                 : `إضافة ${activeTab === 'customer' ? 'عميل' : 'مورد'} جديد`}
             </DialogTitle>
           </DialogHeader>
-          <PartyForm 
-            party={selectedParty} 
-            type={activeTab}
-            onSuccess={() => setIsFormOpen(false)} 
-          />
+          
+          <Tabs defaultValue="details">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="details">البيانات الأساسية</TabsTrigger>
+              <TabsTrigger value="statement" disabled={!selectedParty}>كشف الحساب</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="details" className="pt-4">
+              <PartyForm 
+                party={selectedParty} 
+                type={activeTab}
+                onSuccess={() => setIsFormOpen(false)} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="statement" className="pt-4">
+              {selectedParty && (
+                <AccountStatement 
+                  partyId={selectedParty.id} 
+                  partyName={selectedParty.name} 
+                />
+              )}
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }

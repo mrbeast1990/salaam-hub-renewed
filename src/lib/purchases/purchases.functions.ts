@@ -138,3 +138,15 @@ export const cancelPurchase = createServerFn({ method: "POST" })
     if (error) throw error;
     return { success: true };
   });
+
+export const getPurchaseReturns = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ purchase_id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const { data: returns, error } = await supabase
+      .from("purchase_returns")
+      .select("*")
+      .eq("original_purchase_id", data.purchase_id)
+      .eq("status", "posted");
+    if (error) throw error;
+    return returns;
+  });

@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+
 import { getPurchaseDetails, cancelPurchase } from "@/lib/purchases/purchases.functions";
 import { Button } from "@/components/ui/button";
-import { Loader2, Printer, XCircle, Calendar, User, CreditCard, FileText } from "lucide-react";
+import { Loader2, Printer, XCircle, Calendar, User, CreditCard, FileText, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import {
@@ -160,7 +162,16 @@ export function PurchaseDetails({ purchaseId, onClose, onUpdate }: PurchaseDetai
       </div>
 
       <div className="flex justify-end gap-2 border-t pt-4">
+        {purchase.status === 'posted' && (
+          <Button variant="outline" asChild>
+            <Link to="/returns/new" search={{ type: 'purchase', id: purchaseId }}>
+              <ArrowRight className="size-4 ml-2" />
+              إرجاع أصناف
+            </Link>
+          </Button>
+        )}
         <Button variant="outline" onClick={() => window.open(`/api/print/purchase/${purchase.id}`, '_blank')}>
+
           <Printer className="size-4 ml-2" />
           طباعة
         </Button>
