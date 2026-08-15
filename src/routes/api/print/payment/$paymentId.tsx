@@ -29,15 +29,17 @@ function PaymentPrintPage() {
     'cash': 'نقدي',
     'bank': 'تحويل بنكي',
     'check': 'شيك'
-  }[payment.payment_method || 'cash'];
+  }[payment.payment_method as 'cash' | 'bank' | 'check'] || payment.payment_method;
+
 
   return (
     <div className="p-8 max-w-2xl mx-auto bg-white rtl font-cairo" dir="rtl">
       {/* Header */}
       <div className="text-center border-b pb-4 mb-6">
-        <h1 className="text-2xl font-bold">{settings?.store_name || 'Salaam Sale Hub'}</h1>
-        <p className="text-gray-600">{settings?.store_address}</p>
-        <p className="text-gray-600">هاتف: {settings?.store_phone}</p>
+        <h1 className="text-2xl font-bold">{settings?.company_name || 'Salaam Sale Hub'}</h1>
+        <p className="text-gray-600">{settings?.company_address}</p>
+        <p className="text-gray-600">هاتف: {settings?.company_phone}</p>
+
       </div>
 
       <div className="text-center mb-6">

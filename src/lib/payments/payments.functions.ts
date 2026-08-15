@@ -105,3 +105,28 @@ export const cancelPayment = createServerFn({ method: "POST" })
     if (error) throw error;
     return { success: true };
   });
+
+/**
+ * دالة استرجاع تفاصيل سداد محدد
+ */
+export const getPaymentDetails = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const { data: payment, error } = await supabase
+      .from("payments")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    if (error) throw error;
+
+    // Get party name if not in the record (though RPC should have added it)
+    if (!payment.party_name) {
+       const table = payment.party_type === 'customer' ? 'customers' : 'suppliers';
+       const { data: party } = await supabase.from(table).select('name').eq('id', payment.party_id).single();
+       payment.party_name = party?.name || '';
+    }
+
+    return payment;
+  });
+

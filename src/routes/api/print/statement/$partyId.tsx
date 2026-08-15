@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/print/statement/$partyId')({
   component: StatementPrintPage,
   loader: async ({ params }) => {
     // نجلب كشف الحساب (افتراضياً لآخر 30 يوم إذا لم تحدد فترة)
-    const statement = await getAccountStatement({ partyId: params.partyId });
+    const statement = await getAccountStatement({ party_id: params.partyId });
     
     const { data: party } = await supabase
       .from('customers') // نحاول أولاً في العملاء
@@ -48,9 +48,10 @@ function StatementPrintPage() {
       {/* Header */}
       <div className="flex justify-between border-b-2 pb-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold">{settings?.store_name || 'Salaam Sale Hub'}</h1>
-          <p className="text-gray-600">{settings?.store_address}</p>
-          <p className="text-gray-600">هاتف: {settings?.store_phone}</p>
+          <h1 className="text-2xl font-bold">{settings?.company_name || 'Salaam Sale Hub'}</h1>
+          <p className="text-gray-600">{settings?.company_address}</p>
+          <p className="text-gray-600">هاتف: {settings?.company_phone}</p>
+
         </div>
         <div className="text-left">
           <h2 className="text-xl font-bold mb-2">كشف حساب</h2>
@@ -76,20 +77,22 @@ function StatementPrintPage() {
       <div className="grid grid-cols-4 gap-4 mb-8">
         <div className="border p-3 rounded text-center">
           <p className="text-xs text-gray-500">رصيد افتتاحي</p>
-          <p className="font-bold">{statement.summary.opening_balance.toLocaleString()}</p>
+          <p className="font-bold">{statement.openingBalance.toLocaleString()}</p>
         </div>
+
         <div className="border p-3 rounded text-center">
           <p className="text-xs text-gray-500">إجمالي الفواتير</p>
-          <p className="font-bold">{statement.summary.total_invoiced.toLocaleString()}</p>
+          <p className="font-bold">{statement.summary.totalInvoices.toLocaleString()}</p>
         </div>
         <div className="border p-3 rounded text-center">
           <p className="text-xs text-gray-500">إجمالي المدفوعات</p>
-          <p className="font-bold">{statement.summary.total_paid.toLocaleString()}</p>
+          <p className="font-bold">{statement.summary.totalPayments.toLocaleString()}</p>
         </div>
         <div className="border p-3 rounded text-center bg-gray-900 text-white">
           <p className="text-xs text-gray-200">الرصيد الختامي</p>
-          <p className="text-lg font-bold">{statement.summary.closing_balance.toLocaleString()}</p>
+          <p className="text-lg font-bold">{statement.closingBalance.toLocaleString()}</p>
         </div>
+
       </div>
 
       {/* Transactions Table */}
@@ -107,12 +110,13 @@ function StatementPrintPage() {
         <tbody>
           {statement.movements.map((move, idx) => (
             <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-              <td className="border p-2">{format(new Date(move.date), 'yyyy-MM-dd')}</td>
-              <td className="border p-2">{move.description}</td>
-              <td className="border p-2 font-mono">{move.reference}</td>
+              <td className="border p-2">{format(new Date(move.transaction_date), 'yyyy-MM-dd')}</td>
+              <td className="border p-2">{move.notes || move.source_type}</td>
+              <td className="border p-2 font-mono">{move.id.slice(0, 8)}</td>
               <td className="border p-2 text-red-600">{move.debit > 0 ? move.debit.toLocaleString() : '-'}</td>
               <td className="border p-2 text-green-600">{move.credit > 0 ? move.credit.toLocaleString() : '-'}</td>
-              <td className="border p-2 font-bold">{move.balance.toLocaleString()}</td>
+              <td className="border p-2 font-bold">{move.running_balance.toLocaleString()}</td>
+
             </tr>
           ))}
         </tbody>
