@@ -8,8 +8,12 @@ import {
   ChevronLeft, 
   Bell,
   CreditCard,
-  UserCircle
+  UserCircle,
+  ShoppingCart,
+  DollarSign,
+  Package
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/more")({
   head: () => ({
@@ -39,10 +43,14 @@ const MENU_ITEMS = [
   {
     title: "الخزينة والحسابات",
     items: [
+      { to: "/purchases", label: "المشتريات", icon: ShoppingCart, description: "إدارة فواتير الشراء والموردين" },
+      { to: "/expenses", label: "المصروفات", icon: DollarSign, description: "تسجيل ومتابعة المصروفات الإدارية" },
+      { to: "/inventory", label: "المخزون", icon: Package, description: "جرد الأصناف وحركات المستودع" },
       { to: "/treasury", label: "الخزينة والبنوك", icon: CreditCard, description: "متابعة السيولة وحركات الصندوق" },
       { to: "/customers", label: "العملاء والموردين", icon: UserCircle, description: "إدارة جهات الاتصال والأرصدة" },
     ]
   }
+
 ];
 
 function MorePage() {
