@@ -1,26 +1,129 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { getAccountStatement } from "@/lib/parties/statements.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute } from '@tanstack/react-router';
+import { supabase } from '@/integrations/supabase/client';
+import { getAccountStatement } from '@/lib/parties/statements.functions';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
-export const Route = createFileRoute("/api/print/statement/$partyId")({
-  component: PrintStatementPage,
+export const Route = createFileRoute('/api/print/statement/$partyId')({
+  component: StatementPrintPage,
+  loader: async ({ params }) => {
+    // نجلب كشف الحساب (افتراضياً لآخر 30 يوم إذا لم تحدد فترة)
+    const statement = await getAccountStatement({ partyId: params.partyId });
+    
+    const { data: party } = await supabase
+      .from('customers') // نحاول أولاً في العملاء
+      .select('name, phone')
+      .eq('id', params.partyId)
+      .single();
+
+    let finalParty = party;
+    let partyType = 'customer';
+
+    if (!party) {
+      const { data: supplier } = await supabase
+        .from('suppliers')
+        .select('name, phone')
+        .eq('id', params.partyId)
+        .single();
+      finalParty = supplier;
+      partyType = 'supplier';
+    }
+      
+    const { data: settings } = await supabase
+      .from('app_settings')
+      .select('*')
+      .single();
+      
+    return { statement, party: finalParty, partyType, settings };
+  }
 });
 
-function PrintStatementPage() {
-  const { partyId } = Route.useParams();
-  const search = Route.useSearch() as any;
+function StatementPrintPage() {
+  const { statement, party, partyType, settings } = Route.useLoaderData();
 
-  // Since it's a server route for printing, we usually fetch data in a loader or component
-  // For simplicity in this template, we'll use a component with a query
-  // and trigger window.print() after load.
-  
+  if (!statement) return <div>لا توجد بيانات</div>;
+
   return (
-    <div className="p-8 dir-rtl" style={{ direction: 'rtl' }}>
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold">كشف حساب</h1>
-        <p>جاري تحميل البيانات...</p>
+    <div className="p-8 max-w-4xl mx-auto bg-white rtl font-cairo" dir="rtl">
+      {/* Header */}
+      <div className="flex justify-between border-b-2 pb-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">{settings?.store_name || 'Salaam Sale Hub'}</h1>
+          <p className="text-gray-600">{settings?.store_address}</p>
+          <p className="text-gray-600">هاتف: {settings?.store_phone}</p>
+        </div>
+        <div className="text-left">
+          <h2 className="text-xl font-bold mb-2">كشف حساب</h2>
+          <p className="text-sm text-gray-500">التاريخ: {format(new Date(), 'yyyy-MM-dd')}</p>
+        </div>
       </div>
-      {/* Real printing logic would be more involved, often using a server route that returns HTML */}
+
+      {/* Party Info */}
+      <div className="mb-6 p-4 bg-gray-50 border rounded flex justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{partyType === 'customer' ? 'العميل' : 'المورد'}:</p>
+          <p className="text-lg font-bold">{party?.name}</p>
+        </div>
+        {party?.phone && (
+          <div>
+            <p className="text-sm text-gray-500">الهاتف:</p>
+            <p>{party.phone}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Financial Summary */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="border p-3 rounded text-center">
+          <p className="text-xs text-gray-500">رصيد افتتاحي</p>
+          <p className="font-bold">{statement.summary.opening_balance.toLocaleString()}</p>
+        </div>
+        <div className="border p-3 rounded text-center">
+          <p className="text-xs text-gray-500">إجمالي الفواتير</p>
+          <p className="font-bold">{statement.summary.total_invoiced.toLocaleString()}</p>
+        </div>
+        <div className="border p-3 rounded text-center">
+          <p className="text-xs text-gray-500">إجمالي المدفوعات</p>
+          <p className="font-bold">{statement.summary.total_paid.toLocaleString()}</p>
+        </div>
+        <div className="border p-3 rounded text-center bg-gray-900 text-white">
+          <p className="text-xs text-gray-200">الرصيد الختامي</p>
+          <p className="text-lg font-bold">{statement.summary.closing_balance.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {/* Transactions Table */}
+      <table className="w-full border-collapse mb-8 text-sm">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border p-2 text-right">التاريخ</th>
+            <th className="border p-2 text-right">البيان</th>
+            <th className="border p-2 text-right">المرجع</th>
+            <th className="border p-2 text-right">مدين</th>
+            <th className="border p-2 text-right">دائن</th>
+            <th className="border p-2 text-right">الرصيد</th>
+          </tr>
+        </thead>
+        <tbody>
+          {statement.movements.map((move, idx) => (
+            <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+              <td className="border p-2">{format(new Date(move.date), 'yyyy-MM-dd')}</td>
+              <td className="border p-2">{move.description}</td>
+              <td className="border p-2 font-mono">{move.reference}</td>
+              <td className="border p-2 text-red-600">{move.debit > 0 ? move.debit.toLocaleString() : '-'}</td>
+              <td className="border p-2 text-green-600">{move.credit > 0 ? move.credit.toLocaleString() : '-'}</td>
+              <td className="border p-2 font-bold">{move.balance.toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Footer */}
+      <div className="text-center text-[10px] text-gray-400 mt-20">
+        <p>طُبع بواسطة Salaam Sale Hub في: {format(new Date(), 'yyyy-MM-dd HH:mm:ss')}</p>
+      </div>
+
+      <script dangerouslySetInnerHTML={{ __html: 'window.onload = () => { if(!window.location.search.includes("noprint")) window.print(); }' }} />
     </div>
   );
 }
