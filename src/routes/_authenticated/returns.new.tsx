@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getSaleDetails } from "@/lib/sales/sales.functions";
 import { getPurchaseDetails } from "@/lib/purchases/purchases.functions";
@@ -27,11 +27,13 @@ export const Route = createFileRoute("/_authenticated/returns/new")({
 
 function NewReturnPage() {
   const { type, id } = Route.useSearch();
+  const navigate = useNavigate();
   const [returnQtys, setReturnQtys] = useState<Record<string, number>>({});
   const [refundAmount, setRefundAmount] = useState(0);
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idempotencyKey] = useState(uuidv4());
+
 
   const { data: doc, isPending, isError } = useQuery<any>({
     queryKey: ["doc-for-return", type, id],
@@ -99,7 +101,9 @@ function NewReturnPage() {
         });
       }
       toast.success("تم تسجيل المرتجع بنجاح");
-      window.history.back();
+      const redirectPath = type === 'sale' ? '/sales' : '/purchases';
+      navigate({ to: redirectPath });
+
     } catch (err: any) {
       toast.error(err.message || "فشل تسجيل المرتجع");
     } finally {
