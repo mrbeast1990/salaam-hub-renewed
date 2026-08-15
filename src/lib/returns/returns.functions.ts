@@ -50,6 +50,7 @@ export const postSaleReturn = createServerFn({ method: "POST" })
     const { data: returnId, error } = await supabase.rpc("post_sale_return", {
       payload: data
     });
+
     if (error) throw new Error(error.message);
     return returnId;
   });
@@ -79,6 +80,7 @@ export const postPurchaseReturn = createServerFn({ method: "POST" })
     const { data: returnId, error } = await supabase.rpc("post_purchase_return", {
       payload: data
     });
+
     if (error) throw new Error(error.message);
     return returnId;
   });
