@@ -18,6 +18,7 @@ import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedPosRouteImport } from './routes/_authenticated/pos'
+import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedMoreRouteImport } from './routes/_authenticated/more'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
@@ -70,6 +71,11 @@ const AuthenticatedPurchasesRoute = AuthenticatedPurchasesRouteImport.update({
 const AuthenticatedPosRoute = AuthenticatedPosRouteImport.update({
   id: '/pos',
   path: '/pos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNotificationsRoute =
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/payments': typeof AuthenticatedPaymentsRoute
   '/pos': typeof AuthenticatedPosRoute
   '/purchases': typeof AuthenticatedPurchasesRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/payments': typeof AuthenticatedPaymentsRoute
   '/pos': typeof AuthenticatedPosRoute
   '/purchases': typeof AuthenticatedPurchasesRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/more': typeof AuthenticatedMoreRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/pos': typeof AuthenticatedPosRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRouteWithChildren
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/more'
     | '/notifications'
+    | '/payments'
     | '/pos'
     | '/purchases'
     | '/reports'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/more'
     | '/notifications'
+    | '/payments'
     | '/pos'
     | '/purchases'
     | '/reports'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inventory'
     | '/_authenticated/more'
     | '/_authenticated/notifications'
+    | '/_authenticated/payments'
     | '/_authenticated/pos'
     | '/_authenticated/purchases'
     | '/_authenticated/reports'
@@ -311,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/pos'
       fullPath: '/pos'
       preLoaderRoute: typeof AuthenticatedPosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/payments': {
+      id: '/_authenticated/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/notifications': {
@@ -400,6 +419,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedMoreRoute: typeof AuthenticatedMoreRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedPosRoute: typeof AuthenticatedPosRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRouteWithChildren
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
@@ -416,6 +436,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedMoreRoute: AuthenticatedMoreRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedPosRoute: AuthenticatedPosRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRouteWithChildren,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
