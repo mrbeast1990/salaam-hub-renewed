@@ -64,11 +64,20 @@ export const postPayment = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data }) => {
+    // The RPC expects 'direction', not just party_type.
+    // customer -> 'in' (تحصيل)
+    // supplier -> 'out' (سداد)
+    const direction = data.party_type === 'customer' ? 'in' : 'out';
+    
+    // Get party name for the record
+    const table = data.party_type === 'customer' ? 'customers' : 'suppliers';
+    const { data: party } = await supabase.from(table).select('name').eq('id', data.party_id).single();
+
     const { data: paymentId, error } = await supabase.rpc("post_payment", {
       payload: {
         ...data,
-        // RPC expects party_type as payment_direction sometimes, let's check M1
-        // M1 says doc_type 'payment' uses post_payment(payload)
+        direction,
+        party_name: party?.name || ''
       },
     });
 

@@ -53,10 +53,13 @@ export function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
   const onSubmit = async (values: PaymentFormValues) => {
     setIsSubmitting(true);
     try {
-      await postPayment({
-        ...values,
-        idempotency_key: idempotencyKey,
+      const result = await postPayment({
+        data: {
+          ...values,
+          idempotency_key: idempotencyKey,
+        }
       });
+
       toast.success("تم تسجيل السداد بنجاح");
       onSuccess();
     } catch (error: any) {
