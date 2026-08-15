@@ -25,7 +25,9 @@ import { Route as AuthenticatedInventoryRouteImport } from './routes/_authentica
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedReturnsNewRouteImport } from './routes/_authenticated/returns.new'
 import { Route as AuthenticatedPurchasesNewRouteImport } from './routes/_authenticated/purchases.new'
+import { Route as ApiPrintStatementPartyIdRouteImport } from './routes/api/print/statement/$partyId'
 import { Route as ApiPrintSaleSaleIdRouteImport } from './routes/api/print/sale/$saleId'
 import { Route as ApiPrintPurchasePurchaseIdRouteImport } from './routes/api/print/purchase/$purchaseId'
 
@@ -109,11 +111,22 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReturnsNewRoute = AuthenticatedReturnsNewRouteImport.update({
+  id: '/returns/new',
+  path: '/returns/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPurchasesNewRoute =
   AuthenticatedPurchasesNewRouteImport.update({
     id: '/new',
     path: '/new',
     getParentRoute: () => AuthenticatedPurchasesRoute,
+  } as any)
+const ApiPrintStatementPartyIdRoute =
+  ApiPrintStatementPartyIdRouteImport.update({
+    id: '/api/print/statement/$partyId',
+    path: '/api/print/statement/$partyId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPrintSaleSaleIdRoute = ApiPrintSaleSaleIdRouteImport.update({
   id: '/api/print/sale/$saleId',
@@ -144,8 +157,10 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/purchases/new': typeof AuthenticatedPurchasesNewRoute
+  '/returns/new': typeof AuthenticatedReturnsNewRoute
   '/api/print/purchase/$purchaseId': typeof ApiPrintPurchasePurchaseIdRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
+  '/api/print/statement/$partyId': typeof ApiPrintStatementPartyIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -164,8 +179,10 @@ export interface FileRoutesByTo {
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/': typeof AuthenticatedIndexRoute
   '/purchases/new': typeof AuthenticatedPurchasesNewRoute
+  '/returns/new': typeof AuthenticatedReturnsNewRoute
   '/api/print/purchase/$purchaseId': typeof ApiPrintPurchasePurchaseIdRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
+  '/api/print/statement/$partyId': typeof ApiPrintStatementPartyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,8 +203,10 @@ export interface FileRoutesById {
   '/_authenticated/treasury': typeof AuthenticatedTreasuryRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/purchases/new': typeof AuthenticatedPurchasesNewRoute
+  '/_authenticated/returns/new': typeof AuthenticatedReturnsNewRoute
   '/api/print/purchase/$purchaseId': typeof ApiPrintPurchasePurchaseIdRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
+  '/api/print/statement/$partyId': typeof ApiPrintStatementPartyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -208,8 +227,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/treasury'
     | '/purchases/new'
+    | '/returns/new'
     | '/api/print/purchase/$purchaseId'
     | '/api/print/sale/$saleId'
+    | '/api/print/statement/$partyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -228,8 +249,10 @@ export interface FileRouteTypes {
     | '/treasury'
     | '/'
     | '/purchases/new'
+    | '/returns/new'
     | '/api/print/purchase/$purchaseId'
     | '/api/print/sale/$saleId'
+    | '/api/print/statement/$partyId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -249,8 +272,10 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury'
     | '/_authenticated/'
     | '/_authenticated/purchases/new'
+    | '/_authenticated/returns/new'
     | '/api/print/purchase/$purchaseId'
     | '/api/print/sale/$saleId'
+    | '/api/print/statement/$partyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -258,6 +283,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ApiPrintPurchasePurchaseIdRoute: typeof ApiPrintPurchasePurchaseIdRoute
   ApiPrintSaleSaleIdRoute: typeof ApiPrintSaleSaleIdRoute
+  ApiPrintStatementPartyIdRoute: typeof ApiPrintStatementPartyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -374,12 +400,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/returns/new': {
+      id: '/_authenticated/returns/new'
+      path: '/returns/new'
+      fullPath: '/returns/new'
+      preLoaderRoute: typeof AuthenticatedReturnsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/purchases/new': {
       id: '/_authenticated/purchases/new'
       path: '/new'
       fullPath: '/purchases/new'
       preLoaderRoute: typeof AuthenticatedPurchasesNewRouteImport
       parentRoute: typeof AuthenticatedPurchasesRoute
+    }
+    '/api/print/statement/$partyId': {
+      id: '/api/print/statement/$partyId'
+      path: '/api/print/statement/$partyId'
+      fullPath: '/api/print/statement/$partyId'
+      preLoaderRoute: typeof ApiPrintStatementPartyIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/print/sale/$saleId': {
       id: '/api/print/sale/$saleId'
@@ -427,6 +467,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTreasuryRoute: typeof AuthenticatedTreasuryRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedReturnsNewRoute: typeof AuthenticatedReturnsNewRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -444,6 +485,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTreasuryRoute: AuthenticatedTreasuryRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedReturnsNewRoute: AuthenticatedReturnsNewRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -454,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ApiPrintPurchasePurchaseIdRoute: ApiPrintPurchasePurchaseIdRoute,
   ApiPrintSaleSaleIdRoute: ApiPrintSaleSaleIdRoute,
+  ApiPrintStatementPartyIdRoute: ApiPrintStatementPartyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

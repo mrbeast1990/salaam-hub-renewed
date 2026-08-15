@@ -33,11 +33,12 @@ function NewReturnPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idempotencyKey] = useState(uuidv4());
 
-  const { data: doc, isPending, isError } = useQuery({
+  const { data: doc, isPending, isError } = useQuery<any>({
     queryKey: ["doc-for-return", type, id],
     queryFn: () => type === "sale" ? getSaleDetails({ data: { id } }) : getPurchaseDetails({ data: { id } }),
     enabled: !!id,
   });
+
 
   const items = (doc as any)?.items || [];
 
