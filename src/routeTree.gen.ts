@@ -23,6 +23,7 @@ import { Route as AuthenticatedMoreRouteImport } from './routes/_authenticated/m
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedPurchasesNewRouteImport } from './routes/_authenticated/purchases.new'
 import { Route as ApiPrintSaleSaleIdRouteImport } from './routes/api/print/sale/$saleId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -95,6 +96,12 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPurchasesNewRoute =
+  AuthenticatedPurchasesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedPurchasesRoute,
+  } as any)
 const ApiPrintSaleSaleIdRoute = ApiPrintSaleSaleIdRouteImport.update({
   id: '/api/print/sale/$saleId',
   path: '/api/print/sale/$saleId',
@@ -110,11 +117,12 @@ export interface FileRoutesByFullPath {
   '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/pos': typeof AuthenticatedPosRoute
-  '/purchases': typeof AuthenticatedPurchasesRoute
+  '/purchases': typeof AuthenticatedPurchasesRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/treasury': typeof AuthenticatedTreasuryRoute
+  '/purchases/new': typeof AuthenticatedPurchasesNewRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
 }
 export interface FileRoutesByTo {
@@ -125,12 +133,13 @@ export interface FileRoutesByTo {
   '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/pos': typeof AuthenticatedPosRoute
-  '/purchases': typeof AuthenticatedPurchasesRoute
+  '/purchases': typeof AuthenticatedPurchasesRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/': typeof AuthenticatedIndexRoute
+  '/purchases/new': typeof AuthenticatedPurchasesNewRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
 }
 export interface FileRoutesById {
@@ -143,12 +152,13 @@ export interface FileRoutesById {
   '/_authenticated/more': typeof AuthenticatedMoreRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/pos': typeof AuthenticatedPosRoute
-  '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
+  '/_authenticated/purchases': typeof AuthenticatedPurchasesRouteWithChildren
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/treasury': typeof AuthenticatedTreasuryRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/purchases/new': typeof AuthenticatedPurchasesNewRoute
   '/api/print/sale/$saleId': typeof ApiPrintSaleSaleIdRoute
 }
 export interface FileRouteTypes {
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/settings'
     | '/treasury'
+    | '/purchases/new'
     | '/api/print/sale/$saleId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/treasury'
     | '/'
+    | '/purchases/new'
     | '/api/print/sale/$saleId'
   id:
     | '__root__'
@@ -200,6 +212,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/treasury'
     | '/_authenticated/'
+    | '/_authenticated/purchases/new'
     | '/api/print/sale/$saleId'
   fileRoutesById: FileRoutesById
 }
@@ -309,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/purchases/new': {
+      id: '/_authenticated/purchases/new'
+      path: '/new'
+      fullPath: '/purchases/new'
+      preLoaderRoute: typeof AuthenticatedPurchasesNewRouteImport
+      parentRoute: typeof AuthenticatedPurchasesRoute
+    }
     '/api/print/sale/$saleId': {
       id: '/api/print/sale/$saleId'
       path: '/api/print/sale/$saleId'
@@ -319,6 +339,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedPurchasesRouteChildren {
+  AuthenticatedPurchasesNewRoute: typeof AuthenticatedPurchasesNewRoute
+}
+
+const AuthenticatedPurchasesRouteChildren: AuthenticatedPurchasesRouteChildren =
+  {
+    AuthenticatedPurchasesNewRoute: AuthenticatedPurchasesNewRoute,
+  }
+
+const AuthenticatedPurchasesRouteWithChildren =
+  AuthenticatedPurchasesRoute._addFileChildren(
+    AuthenticatedPurchasesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
@@ -326,7 +360,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMoreRoute: typeof AuthenticatedMoreRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPosRoute: typeof AuthenticatedPosRoute
-  AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
+  AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRouteWithChildren
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -341,7 +375,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMoreRoute: AuthenticatedMoreRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPosRoute: AuthenticatedPosRoute,
-  AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
+  AuthenticatedPurchasesRoute: AuthenticatedPurchasesRouteWithChildren,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
