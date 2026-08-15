@@ -22,12 +22,10 @@ export const getTreasuryReport = createServerFn({ method: "GET" })
     if (error) throw error;
 
     let balance = 0;
-    // ملاحظة: قد نحتاج لجلب الرصيد الافتتاحي قبل التاريخ المحدد إذا لزم الأمر، 
-    // ولكن لغرض التقرير الحالي سنعتمد على الحركات ضمن الفترة
     
     const stats = movements?.reduce((acc, m) => {
       const amount = Number(m.amount);
-      if (m.type === 'in') {
+      if (m.direction === 'in') {
         acc.totalIn += amount;
         balance += amount;
       } else {
