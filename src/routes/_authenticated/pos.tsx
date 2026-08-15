@@ -10,6 +10,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postSale } from "@/lib/sales/sales.functions";
 import { useNavigate } from "@tanstack/react-router";
 import { v4 as uuidv4 } from "uuid";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postSale } from "@/lib/sales/sales.functions";
+import { useNavigate } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
