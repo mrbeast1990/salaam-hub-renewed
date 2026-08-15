@@ -13,10 +13,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedTreasuryRouteImport } from './routes/_authenticated/treasury'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedMoreRouteImport } from './routes/_authenticated/more'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
@@ -40,6 +42,11 @@ const AuthenticatedTreasuryRoute = AuthenticatedTreasuryRouteImport.update({
   path: '/treasury',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -61,6 +68,11 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMoreRoute = AuthenticatedMoreRouteImport.update({
+  id: '/more',
+  path: '/more',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
@@ -83,10 +95,12 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/treasury': typeof AuthenticatedTreasuryRoute
 }
 export interface FileRoutesByTo {
@@ -94,10 +108,12 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/purchases': typeof AuthenticatedPurchasesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -108,10 +124,12 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
+  '/_authenticated/more': typeof AuthenticatedMoreRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/treasury': typeof AuthenticatedTreasuryRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
@@ -123,10 +141,12 @@ export interface FileRouteTypes {
     | '/audit'
     | '/customers'
     | '/inventory'
+    | '/more'
     | '/notifications'
     | '/purchases'
     | '/reports'
     | '/sales'
+    | '/settings'
     | '/treasury'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -134,10 +154,12 @@ export interface FileRouteTypes {
     | '/audit'
     | '/customers'
     | '/inventory'
+    | '/more'
     | '/notifications'
     | '/purchases'
     | '/reports'
     | '/sales'
+    | '/settings'
     | '/treasury'
     | '/'
   id:
@@ -147,10 +169,12 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/_authenticated/customers'
     | '/_authenticated/inventory'
+    | '/_authenticated/more'
     | '/_authenticated/notifications'
     | '/_authenticated/purchases'
     | '/_authenticated/reports'
     | '/_authenticated/sales'
+    | '/_authenticated/settings'
     | '/_authenticated/treasury'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -190,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTreasuryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
       path: '/sales'
@@ -216,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/more': {
+      id: '/_authenticated/more'
+      path: '/more'
+      fullPath: '/more'
+      preLoaderRoute: typeof AuthenticatedMoreRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inventory': {
@@ -246,10 +284,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
+  AuthenticatedMoreRoute: typeof AuthenticatedMoreRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTreasuryRoute: typeof AuthenticatedTreasuryRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
@@ -258,10 +298,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
+  AuthenticatedMoreRoute: AuthenticatedMoreRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTreasuryRoute: AuthenticatedTreasuryRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }

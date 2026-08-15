@@ -1441,6 +1441,7 @@ export type Database = {
         Args: { entity_id: string; entity_type: string; reason: string }
         Returns: undefined
       }
+      is_setup_complete: { Args: never; Returns: boolean }
       next_doc_number: {
         Args: { _prefix: string; _scope: string }
         Returns: string
