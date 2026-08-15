@@ -63,10 +63,11 @@ const purchaseSchema = z.object({
       product_name: z.string(),
       qty: z.number().min(0.01, "الكمية يجب أن تكون أكبر من 0"),
       unit_price: z.number().min(0, "السعر يجب أن يكون 0 أو أكثر"),
-      line_discount: z.number().default(0),
+      line_discount: z.number(),
     })
   ).min(1, "يجب إضافة صنف واحد على الأقل"),
 });
+
 
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 
@@ -190,7 +191,7 @@ export function PurchaseForm() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-6">
+        <form onSubmit={form.handleSubmit((v) => mutation.mutate(v as PurchaseFormValues))} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <Card>
