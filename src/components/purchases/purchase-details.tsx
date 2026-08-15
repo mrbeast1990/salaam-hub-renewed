@@ -41,12 +41,13 @@ export function PurchaseDetails({ purchaseId, onClose, onUpdate }: PurchaseDetai
 
   const { data: purchase, isLoading, isError } = useQuery({
     queryKey: ["purchase-details", purchaseId],
-    queryFn: () => getPurchaseDetails({ id: purchaseId }),
+    queryFn: () => getPurchaseDetails({ data: { id: purchaseId } }),
   });
 
   const cancelMutation = useMutation({
-    mutationFn: () => cancelPurchase({ id: purchaseId, reason: cancelReason }),
+    mutationFn: () => cancelPurchase({ data: { id: purchaseId, reason: cancelReason } }),
     onSuccess: () => {
+
       toast.success("تم إلغاء الفاتورة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["purchases"] });
       onUpdate();

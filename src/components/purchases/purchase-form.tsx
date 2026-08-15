@@ -70,6 +70,7 @@ const purchaseSchema = z.object({
 
 type PurchaseFormValues = z.infer<typeof purchaseSchema>;
 
+
 export function PurchaseForm() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -131,8 +132,9 @@ export function PurchaseForm() {
   const total = subtotal - discount;
 
   const mutation = useMutation({
-    mutationFn: (values: PurchaseFormValues) => postPurchase({ ...values, idempotency_key: idempotencyKey }),
+    mutationFn: (values: PurchaseFormValues) => postPurchase({ data: { ...values, idempotency_key: idempotencyKey, tax: 0 } }),
     onSuccess: (purchaseId) => {
+
       toast.success("تم حفظ فاتورة الشراء بنجاح");
       queryClient.invalidateQueries({ queryKey: ["purchases"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
