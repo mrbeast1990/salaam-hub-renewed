@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, endOfDay, subDays, startOfMonth, format } from "date-fns";
+import { subDays, startOfMonth, format } from "date-fns";
 
 export const getDashboardStats = createServerFn({ method: "GET" })
   .handler(async () => {
@@ -18,8 +18,8 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       treasuryBalance,
       customerDebt,
       supplierDebt,
-      inventoryValuation,
-      lowStockCount,
+      stockData,
+      productsRes,
       recentMovements
     ] = await Promise.all([
       // مبيعات اليوم
@@ -38,24 +38,28 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       supabase.from("v_customer_balance").select("balance"),
       // مستحقات الموردين
       supabase.from("v_supplier_balance").select("balance"),
-      // قيمة المخزون (سعر الشراء * الكمية)
-      supabase.from("v_product_stock").select("on_hand, unit_cost"),
-      // الأصناف منخفضة المخزون
-      supabase.from("products").select("id, name, min_stock").eq("active", true),
-      // أحدث الحركات (من حركات المخزون أو Ledger)
+      // كميات المخزون
+      supabase.from("v_product_stock").select("product_id, on_hand"),
+      // بيانات المنتجات (لسعر الشراء والحد الأدنى)
+      supabase.from("products").select("id, name, min_stock, buy_price").eq("active", true),
+      // أحدث الحركات
       supabase.from("party_ledger").select("*").order("created_at", { ascending: false }).limit(5)
     ]);
 
     // حساب التجميعات
     const sum = (arr: any[], key: string) => arr?.reduce((a, b) => a + Number(b[key] || 0), 0) || 0;
 
-    // جلب كميات المخزون الفعلية لمطابقتها مع min_stock
-    const { data: stockData } = await supabase.from("v_product_stock").select("product_id, on_hand");
-    const stockMap = new Map(stockData?.map(s => [s.product_id, Number(s.on_hand)]) || []);
+    const stockMap = new Map(stockData.data?.map(s => [s.product_id, Number(s.on_hand)]) || []);
     
-    const lowStockItems = (lowStockCount.data || []).filter(p => {
+    let totalInventoryValue = 0;
+    let lowStockCount = 0;
+
+    (productsRes.data || []).forEach(p => {
       const qty = stockMap.get(p.id) || 0;
-      return qty <= (p.min_stock || 0);
+      totalInventoryValue += (qty * Number(p.buy_price || 0));
+      if (qty <= (p.min_stock || 0)) {
+        lowStockCount++;
+      }
     });
 
     return {
@@ -76,8 +80,8 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         payables: (supplierDebt.data || []).reduce((a, b) => a + Math.max(0, Number(b.balance)), 0),
       },
       inventory: {
-        totalValue: (inventoryValuation.data || []).reduce((a, b) => a + (Number(b.on_hand) * Number(b.unit_cost)), 0),
-        lowStockCount: lowStockItems.length,
+        totalValue: totalInventoryValue,
+        lowStockCount: lowStockCount,
       },
       recentMovements: recentMovements.data || []
     };
