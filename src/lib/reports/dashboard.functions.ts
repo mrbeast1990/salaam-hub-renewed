@@ -40,8 +40,8 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       supabase.from("v_supplier_balance").select("balance"),
       // كميات المخزون
       supabase.from("v_product_stock").select("product_id, on_hand"),
-      // بيانات المنتجات (لسعر الشراء والحد الأدنى)
-      supabase.from("products").select("id, name, min_stock, buy_price").eq("active", true),
+      // بيانات المنتجات (لسعر التكلفة والحد الأدنى)
+      supabase.from("products").select("id, name, min_stock, cost_price").eq("active", true),
       // أحدث الحركات
       supabase.from("party_ledger").select("*").order("created_at", { ascending: false }).limit(5)
     ]);
@@ -56,7 +56,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
 
     (productsRes.data || []).forEach(p => {
       const qty = stockMap.get(p.id) || 0;
-      totalInventoryValue += (qty * Number(p.buy_price || 0));
+      totalInventoryValue += (qty * Number(p.cost_price || 0));
       if (qty <= (p.min_stock || 0)) {
         lowStockCount++;
       }
