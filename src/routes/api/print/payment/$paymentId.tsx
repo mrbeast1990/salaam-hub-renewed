@@ -7,7 +7,7 @@ import { ar } from 'date-fns/locale';
 export const Route = createFileRoute('/api/print/payment/$paymentId')({
   component: PaymentPrintPage,
   loader: async ({ params }) => {
-    const payment = await getPaymentDetails({ id: params.paymentId });
+    const payment = await getPaymentDetails({ data: { id: params.paymentId } });
     
     const { data: settings } = await supabase
       .from('app_settings')
@@ -29,7 +29,8 @@ function PaymentPrintPage() {
     'cash': 'نقدي',
     'bank': 'تحويل بنكي',
     'check': 'شيك'
-  }[payment.payment_method as 'cash' | 'bank' | 'check'] || payment.payment_method;
+  }[payment.method as 'cash' | 'bank' | 'check'] || payment.method;
+
 
 
   return (
@@ -83,10 +84,11 @@ function PaymentPrintPage() {
       {/* Balances */}
       <div className="border-t pt-4 mb-12">
         <div className="flex justify-between mb-2">
-          <span>الرصيد بعد السداد:</span>
-          <span className="font-bold">{payment.current_party_balance?.toLocaleString()} {settings?.currency || 'جنيه'}</span>
+          <span>الحالة:</span>
+          <span className="font-bold">{payment.status === 'posted' ? 'معتمد' : 'ملغى'}</span>
         </div>
       </div>
+
 
       {/* Footer */}
       <div className="flex justify-between items-end mt-20">
