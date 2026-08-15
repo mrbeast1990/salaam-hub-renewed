@@ -1449,7 +1449,9 @@ export type Database = {
       post_expense: { Args: { payload: Json }; Returns: string }
       post_payment: { Args: { payload: Json }; Returns: string }
       post_purchase: { Args: { payload: Json }; Returns: string }
+      post_purchase_return: { Args: { payload: Json }; Returns: string }
       post_sale: { Args: { payload: Json }; Returns: string }
+      post_sale_return: { Args: { payload: Json }; Returns: string }
     }
     Enums: {
       doc_status: "draft" | "posted" | "cancelled"
