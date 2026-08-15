@@ -7,15 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Plus, Search, Users, UserRound } from "lucide-react";
+import { Loader2, Plus, Search, Users, UserRound, Edit2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PartyForm } from "@/components/parties/party-form";
 
 export const Route = createFileRoute("/_authenticated/customers")({
   head: () => ({
-    meta: [
-      { title: "العملاء والموردون — سلام" },
-    ],
+    meta: [{ title: "العملاء والموردون — سلام" }],
   }),
   component: PartiesPage,
 });
@@ -23,8 +23,12 @@ export const Route = createFileRoute("/_authenticated/customers")({
 function PartiesPage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"customer" | "supplier">("customer");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedParty, setSelectedParty] = useState<any>(null);
+  
+  const queryClient = useQueryClient();
 
-  const { data: parties, isPending } = useQuery({
+  const { data: parties, isPending, isError, refetch } = useQuery({
     queryKey: ["parties", activeTab],
     queryFn: async () => {
       const isCustomer = activeTab === "customer";
@@ -54,12 +58,22 @@ function PartiesPage() {
     p.phone?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleEdit = (party: any) => {
+    setSelectedParty(party);
+    setIsFormOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedParty(null);
+    setIsFormOpen(true);
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
         title="العملاء والموردون"
         action={
-          <Button onClick={() => toast.info("سيتم إضافة نموذج الإضافة لاحقاً")}>
+          <Button onClick={handleAdd}>
             <Plus className="size-4 ml-2" />
             {activeTab === "customer" ? "إضافة عميل" : "إضافة مورد"}
           </Button>
@@ -81,7 +95,7 @@ function PartiesPage() {
         <div className="relative mt-4">
           <Search className="absolute right-3 top-2.5 size-4 text-muted-foreground" />
           <Input
-            placeholder={`بحث في ${activeTab === "customer" ? "العملاء" : "الموردين"}...`}
+            placeholder={`بحث في ${activeTab === "customer" ? "العملاء" : "الموردين"} بالاسم أو الهاتف...`}
             className="pr-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -91,48 +105,81 @@ function PartiesPage() {
         <TabsContent value={activeTab} className="mt-4">
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>الاسم</TableHead>
-                    <TableHead>الهاتف</TableHead>
-                    <TableHead className="text-left">الرصيد</TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isPending ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-10">
-                        <Loader2 className="size-8 animate-spin mx-auto text-muted-foreground" />
-                      </TableCell>
+                      <TableHead>الاسم</TableHead>
+                      <TableHead>الهاتف</TableHead>
+                      <TableHead>العنوان</TableHead>
+                      <TableHead className="text-left">الرصيد</TableHead>
+                      <TableHead className="w-[80px]"></TableHead>
                     </TableRow>
-                  ) : filtered?.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
-                        لا توجد نتائج.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filtered?.map((p) => (
-                      <TableRow key={p.id}>
-                        <TableCell className="font-medium">{p.name}</TableCell>
-                        <TableCell>{p.phone || "—"}</TableCell>
-                        <TableCell className={`text-left font-bold ${p.balance > 0 ? 'text-destructive' : p.balance < 0 ? 'text-green-600' : ''}`}>
-                          {p.balance.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-left">
-                          <Button variant="ghost" size="sm">تعديل</Button>
+                  </TableHeader>
+                  <TableBody>
+                    {isPending ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-10">
+                          <Loader2 className="size-8 animate-spin mx-auto text-muted-foreground" />
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : isError ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-10">
+                          <div className="flex flex-col items-center gap-2">
+                            <AlertCircle className="size-8 text-destructive" />
+                            <p>فشل تحميل البيانات</p>
+                            <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : filtered?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                          لا توجد نتائج.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filtered?.map((p) => (
+                        <TableRow key={p.id} className={!p.active ? "opacity-50" : ""}>
+                          <TableCell className="font-medium">{p.name}</TableCell>
+                          <TableCell dir="ltr" className="text-right">{p.phone || "—"}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">{p.address || "—"}</TableCell>
+                          <TableCell className={`text-left font-bold tabular-nums ${p.balance > 0 ? 'text-destructive' : p.balance < 0 ? 'text-green-600' : ''}`}>
+                            {p.balance.toLocaleString('ar-EG', { minimumFractionDigits: 2 })}
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
+                              <Edit2 className="size-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedParty 
+                ? `تعديل ${activeTab === 'customer' ? 'العميل' : 'المورد'}: ${selectedParty.name}` 
+                : `إضافة ${activeTab === 'customer' ? 'عميل' : 'مورد'} جديد`}
+            </DialogTitle>
+          </DialogHeader>
+          <PartyForm 
+            party={selectedParty} 
+            type={activeTab}
+            onSuccess={() => setIsFormOpen(false)} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
