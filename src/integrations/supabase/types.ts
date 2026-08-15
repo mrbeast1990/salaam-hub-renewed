@@ -1441,6 +1441,33 @@ export type Database = {
         Args: { entity_id: string; entity_type: string; reason: string }
         Returns: undefined
       }
+      check_audit_inventory_mismatches: {
+        Args: never
+        Returns: {
+          details: Json
+          entity_id: string
+          entity_type: string
+          message: string
+        }[]
+      }
+      check_audit_ledger_mismatches: {
+        Args: never
+        Returns: {
+          details: Json
+          entity_id: string
+          entity_type: string
+          message: string
+        }[]
+      }
+      check_audit_sales_no_items: {
+        Args: never
+        Returns: {
+          details: Json
+          entity_id: string
+          entity_type: string
+          message: string
+        }[]
+      }
       is_setup_complete: { Args: never; Returns: boolean }
       next_doc_number: {
         Args: { _prefix: string; _scope: string }
