@@ -38,8 +38,8 @@ export function PartyForm({
 }: { 
   party?: any; 
   type: 'customer' | 'supplier';
-  onSuccess: () => void 
-}) {
+   onSuccess: (party?: any) => void 
+ }) {
   const queryClient = useQueryClient();
   const isNew = !party?.id;
 
