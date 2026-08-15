@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/api/print/sale/$saleId")({
   component: SalePrintPage,
