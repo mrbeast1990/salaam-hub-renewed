@@ -145,3 +145,15 @@ export const cancelSale = createServerFn({ method: "POST" })
     if (error) throw error;
     return { success: true };
   });
+
+export const getSaleReturns = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ sale_id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const { data: returns, error } = await supabase
+      .from("sale_returns")
+      .select("*")
+      .eq("sale_id", data.sale_id)
+      .eq("status", "posted");
+    if (error) throw error;
+    return returns;
+  });
