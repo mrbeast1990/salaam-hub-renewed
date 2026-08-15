@@ -38,8 +38,8 @@ export function PartyForm({
 }: { 
   party?: any; 
   type: 'customer' | 'supplier';
-  onSuccess: () => void 
-}) {
+   onSuccess: (party?: any) => void 
+ }) {
   const queryClient = useQueryClient();
   const isNew = !party?.id;
 
@@ -61,6 +61,7 @@ export function PartyForm({
       const { opening_balance, opening_date, ...rest } = values;
       
       let partyId = party?.id;
+      let partyData = null;
 
       if (isNew) {
         const table = type === 'customer' ? 'customers' : 'suppliers';
@@ -71,6 +72,7 @@ export function PartyForm({
           .single();
         if (error) throw error;
         partyId = data.id;
+        partyData = data;
 
         // Apply opening balance if provided
         if (opening_balance !== 0) {
@@ -83,17 +85,21 @@ export function PartyForm({
         }
       } else {
         const table = type === 'customer' ? 'customers' : 'suppliers';
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from(table)
           .update({ ...rest, updated_at: new Date().toISOString() })
-          .eq("id", partyId);
+          .eq("id", partyId)
+          .select()
+          .single();
         if (error) throw error;
+        partyData = data;
       }
+      return partyData;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success(isNew ? "تمت الإضافة بنجاح" : "تم التعديل بنجاح");
       queryClient.invalidateQueries({ queryKey: ["parties"] });
-      onSuccess();
+      onSuccess(data);
     },
     onError: (error: any) => {
       toast.error("حدث خطأ: " + error.message);
