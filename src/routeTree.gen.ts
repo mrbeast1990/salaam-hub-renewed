@@ -28,6 +28,7 @@ import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedReturnsNewRouteImport } from './routes/_authenticated/returns.new'
 import { Route as AuthenticatedReportsSalesRouteImport } from './routes/_authenticated/reports/sales'
+import { Route as AuthenticatedReportsInventoryRouteImport } from './routes/_authenticated/reports/inventory'
 import { Route as AuthenticatedPurchasesNewRouteImport } from './routes/_authenticated/purchases.new'
 import { Route as ApiPrintStatementPartyIdRouteImport } from './routes/api/print/statement/$partyId'
 import { Route as ApiPrintSaleSaleIdRouteImport } from './routes/api/print/sale/$saleId'
@@ -131,6 +132,12 @@ const AuthenticatedReportsSalesRoute =
     path: '/sales',
     getParentRoute: () => AuthenticatedReportsRoute,
   } as any)
+const AuthenticatedReportsInventoryRoute =
+  AuthenticatedReportsInventoryRouteImport.update({
+    id: '/inventory',
+    path: '/inventory',
+    getParentRoute: () => AuthenticatedReportsRoute,
+  } as any)
 const AuthenticatedPurchasesNewRoute =
   AuthenticatedPurchasesNewRouteImport.update({
     id: '/new',
@@ -178,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/purchases/new': typeof AuthenticatedPurchasesNewRoute
+  '/reports/inventory': typeof AuthenticatedReportsInventoryRoute
   '/reports/sales': typeof AuthenticatedReportsSalesRoute
   '/returns/new': typeof AuthenticatedReturnsNewRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
@@ -202,6 +210,7 @@ export interface FileRoutesByTo {
   '/treasury': typeof AuthenticatedTreasuryRoute
   '/': typeof AuthenticatedIndexRoute
   '/purchases/new': typeof AuthenticatedPurchasesNewRoute
+  '/reports/inventory': typeof AuthenticatedReportsInventoryRoute
   '/reports/sales': typeof AuthenticatedReportsSalesRoute
   '/returns/new': typeof AuthenticatedReturnsNewRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
@@ -229,6 +238,7 @@ export interface FileRoutesById {
   '/_authenticated/treasury': typeof AuthenticatedTreasuryRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/purchases/new': typeof AuthenticatedPurchasesNewRoute
+  '/_authenticated/reports/inventory': typeof AuthenticatedReportsInventoryRoute
   '/_authenticated/reports/sales': typeof AuthenticatedReportsSalesRoute
   '/_authenticated/returns/new': typeof AuthenticatedReturnsNewRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/treasury'
     | '/purchases/new'
+    | '/reports/inventory'
     | '/reports/sales'
     | '/returns/new'
     | '/reports/'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/treasury'
     | '/'
     | '/purchases/new'
+    | '/reports/inventory'
     | '/reports/sales'
     | '/returns/new'
     | '/reports'
@@ -306,6 +318,7 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury'
     | '/_authenticated/'
     | '/_authenticated/purchases/new'
+    | '/_authenticated/reports/inventory'
     | '/_authenticated/reports/sales'
     | '/_authenticated/returns/new'
     | '/_authenticated/reports/'
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsSalesRouteImport
       parentRoute: typeof AuthenticatedReportsRoute
     }
+    '/_authenticated/reports/inventory': {
+      id: '/_authenticated/reports/inventory'
+      path: '/inventory'
+      fullPath: '/reports/inventory'
+      preLoaderRoute: typeof AuthenticatedReportsInventoryRouteImport
+      parentRoute: typeof AuthenticatedReportsRoute
+    }
     '/_authenticated/purchases/new': {
       id: '/_authenticated/purchases/new'
       path: '/new'
@@ -512,11 +532,13 @@ const AuthenticatedPurchasesRouteWithChildren =
   )
 
 interface AuthenticatedReportsRouteChildren {
+  AuthenticatedReportsInventoryRoute: typeof AuthenticatedReportsInventoryRoute
   AuthenticatedReportsSalesRoute: typeof AuthenticatedReportsSalesRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
 }
 
 const AuthenticatedReportsRouteChildren: AuthenticatedReportsRouteChildren = {
+  AuthenticatedReportsInventoryRoute: AuthenticatedReportsInventoryRoute,
   AuthenticatedReportsSalesRoute: AuthenticatedReportsSalesRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
 }
