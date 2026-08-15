@@ -7,11 +7,14 @@ import { ar } from 'date-fns/locale';
 export const Route = createFileRoute('/api/print/statement/$partyId')({
   component: StatementPrintPage,
   loader: async ({ params }) => {
-    // نجلب كشف الحساب (افتراضياً لآخر 30 يوم إذا لم تحدد فترة)
-    const statement = await getAccountStatement({ party_id: params.partyId });
+    // We pass the object directly to getAccountStatement because it's a server function
+    // In TanStack Start loader, we use the function directly.
+    const statement = await getAccountStatement({ 
+      data: { party_id: params.partyId } 
+    });
     
     const { data: party } = await supabase
-      .from('customers') // نحاول أولاً في العملاء
+      .from('customers')
       .select('name, phone')
       .eq('id', params.partyId)
       .single();
@@ -51,7 +54,6 @@ function StatementPrintPage() {
           <h1 className="text-2xl font-bold">{settings?.company_name || 'Salaam Sale Hub'}</h1>
           <p className="text-gray-600">{settings?.company_address}</p>
           <p className="text-gray-600">هاتف: {settings?.company_phone}</p>
-
         </div>
         <div className="text-left">
           <h2 className="text-xl font-bold mb-2">كشف حساب</h2>
@@ -79,7 +81,6 @@ function StatementPrintPage() {
           <p className="text-xs text-gray-500">رصيد افتتاحي</p>
           <p className="font-bold">{statement.openingBalance.toLocaleString()}</p>
         </div>
-
         <div className="border p-3 rounded text-center">
           <p className="text-xs text-gray-500">إجمالي الفواتير</p>
           <p className="font-bold">{statement.summary.totalInvoices.toLocaleString()}</p>
@@ -92,7 +93,6 @@ function StatementPrintPage() {
           <p className="text-xs text-gray-200">الرصيد الختامي</p>
           <p className="text-lg font-bold">{statement.closingBalance.toLocaleString()}</p>
         </div>
-
       </div>
 
       {/* Transactions Table */}
@@ -116,7 +116,6 @@ function StatementPrintPage() {
               <td className="border p-2 text-red-600">{move.debit > 0 ? move.debit.toLocaleString() : '-'}</td>
               <td className="border p-2 text-green-600">{move.credit > 0 ? move.credit.toLocaleString() : '-'}</td>
               <td className="border p-2 font-bold">{move.running_balance.toLocaleString()}</td>
-
             </tr>
           ))}
         </tbody>
