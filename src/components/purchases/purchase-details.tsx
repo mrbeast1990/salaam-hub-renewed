@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 
 import { getPurchaseDetails, cancelPurchase } from "@/lib/purchases/purchases.functions";
 import { Button } from "@/components/ui/button";
-import { Loader2, Printer, XCircle, Calendar, User, CreditCard, FileText } from "lucide-react";
+import { Loader2, Printer, XCircle, Calendar, User, CreditCard, FileText, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import {
