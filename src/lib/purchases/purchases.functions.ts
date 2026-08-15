@@ -145,7 +145,7 @@ export const getPurchaseReturns = createServerFn({ method: "GET" })
     const { data: returns, error } = await supabase
       .from("purchase_returns")
       .select("*")
-      .eq("purchase_id", data.purchase_id)
+      .eq("original_purchase_id", data.purchase_id)
       .eq("status", "posted");
     if (error) throw error;
     return returns;

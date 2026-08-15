@@ -152,7 +152,7 @@ export const getSaleReturns = createServerFn({ method: "GET" })
     const { data: returns, error } = await supabase
       .from("sale_returns")
       .select("*")
-      .eq("sale_id", data.sale_id)
+      .eq("original_sale_id", data.sale_id)
       .eq("status", "posted");
     if (error) throw error;
     return returns;
