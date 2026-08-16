@@ -74,6 +74,7 @@ export const runSmokeTest = createServerFn({ method: "POST" })
         }],
         paid: 500,
         payment_method: 'cash',
+        notes: 'SMOKE_TEST_RECORD',
         idempotency_key: `${idempotencyPrefix}_PURCHASE_1`
       };
 
