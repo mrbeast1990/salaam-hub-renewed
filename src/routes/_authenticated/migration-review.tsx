@@ -192,7 +192,8 @@ function StatItem({ label, value, color = "text-gray-900" }: { label: string, va
       <p className="text-[10px] text-gray-500 mb-1">{label}</p>
       <p className={`text-lg font-bold ${color}`}>{value}</p>
     </div>
-  }
+  )
+}
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
