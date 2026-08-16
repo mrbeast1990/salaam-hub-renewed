@@ -1,11 +1,6 @@
----
-title: "تقرير الترحيل التجريبي M8 | Salaam Sale Hub"
-description: "نتائج الترحيل التجريبي ومطابقة البيانات بين النظام القديم والجديد"
----
-
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/migration-review')({
+export const Route = createFileRoute('/_authenticated/migration-review')({
   component: MigrationReviewPage
 })
 
