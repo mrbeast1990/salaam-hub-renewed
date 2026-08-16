@@ -24,11 +24,9 @@ export const startFinalCutover = createServerFn({ method: "POST" })
 
     try {
       // 2. محاكاة سحب الـ Delta (في الواقع سيتم الاتصال بالقاعدة القديمة هنا)
-      // للأغراض الحالية، سنفترض وجود 12 عملية جديدة منذ M8
       const deltaCount = 12;
       
       // 3. ضبط العدادات (Document Counters)
-      // سنفحص أعلى الأرقام ونحدث doc_counters
       const tables = ['sales', 'purchases', 'payments', 'expenses', 'sale_returns', 'purchase_returns'];
       for (const table of tables) {
         const { data: maxDoc } = await supabaseAdmin
@@ -72,7 +70,7 @@ export const startFinalCutover = createServerFn({ method: "POST" })
             audit_score: 100,
             status: 'CUTOVER SUCCESSFUL'
           }
-        })
+        } as any)
         .eq('id', (batch as any).id);
 
       return { success: true, batchId: (batch as any).id };
@@ -83,7 +81,7 @@ export const startFinalCutover = createServerFn({ method: "POST" })
           status: 'failed',
           finished_at: new Date().toISOString(),
           summary: { error: error.message, status: 'CUTOVER FAILED' }
-        })
+        } as any)
         .eq('id', (batch as any).id);
       throw error;
     }
@@ -102,9 +100,12 @@ export const getCutoverStatus = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
+    const batch = lastBatch as any;
+
     return {
-      isLive: lastBatch?.status === 'completed',
-      lastBatch,
-      healthScore: lastBatch?.summary?.audit_score || 0
+      isLive: batch?.status === 'completed',
+      lastBatch: batch,
+      healthScore: batch?.summary?.audit_score || 0
     };
   });
+
