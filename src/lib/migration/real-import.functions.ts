@@ -73,13 +73,14 @@ export const runRealImport = createServerFn({ method: "POST" })
 
       // 5. Run Audit and Reconciliation
       const audit = await getAuditSummary();
+      const stats = await getDashboardStats();
       
       // Calculate Reconciliation (Simulation)
       const reconciliation = {
           customers: { matched: 45, diff: 0 },
           suppliers: { matched: 8, diff: 0 },
           inventory: { matched: 153, diff: 0 },
-          treasury: { diff: 0 }
+          treasury: { diff: 0, balance: stats.balances.treasury }
       };
 
       // 6. Update Batch Status
