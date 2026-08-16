@@ -34,3 +34,6 @@ If an anomaly is detected:
 - **Purchases Initial**: 0 (New) / 85 (Legacy)
 - **Treasury Initial**: Matched
 - **Inventory Initial**: Matched
+
+## Verification Tools
+- **Smoke Test**: A comprehensive operational check that simulates sales, purchases, payments, and voids to verify system integrity without affecting balances. Accessible via the Dashboard.
