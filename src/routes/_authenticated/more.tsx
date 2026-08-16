@@ -11,7 +11,8 @@ import {
   UserCircle,
   ShoppingCart,
   DollarSign,
-  Package
+  Package,
+  Database
 } from "lucide-react";
 
 
@@ -31,6 +32,7 @@ const MENU_ITEMS = [
     items: [
       { to: "/settings", label: "إعدادات المنشأة", icon: Settings, description: "الاسم، الشعار، العملة، والأرصدة الافتتاحية" },
       { to: "/notifications", label: "التنبيهات", icon: Bell, description: "تنبيهات المخزون والعمليات" },
+      { to: "/migration-review", label: "مركز الترحيل", icon: Database, description: "متابعة نقل البيانات من النظام القديم" },
     ]
   },
   {
