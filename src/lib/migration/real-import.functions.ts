@@ -1,9 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { postSale } from "../sales/sales.functions";
-import { postPurchase } from "../purchases/purchases.functions";
-import { postPayment } from "../payments/payments.functions";
 import { getAuditSummary } from "../reports/audit.functions";
+import { getDashboardStats } from "../reports/dashboard.functions";
 
 /**
  * M8 Real Import Execution
