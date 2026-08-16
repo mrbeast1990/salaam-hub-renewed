@@ -172,6 +172,9 @@ export type Database = {
           created_at: string
           id: string
           legacy_id: string | null
+          legacy_table: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           name: string
           sort_order: number
           updated_at: string
@@ -181,6 +184,9 @@ export type Database = {
           created_at?: string
           id?: string
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           name: string
           sort_order?: number
           updated_at?: string
@@ -190,11 +196,22 @@ export type Database = {
           created_at?: string
           id?: string
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           name?: string
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customers: {
         Row: {
@@ -203,7 +220,11 @@ export type Database = {
           created_at: string
           id: string
           legacy_id: string | null
+          legacy_stored_balance: number | null
+          legacy_table: string | null
           linked_supplier_id: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           name: string
           notes: string | null
           phone: string | null
@@ -215,7 +236,11 @@ export type Database = {
           created_at?: string
           id?: string
           legacy_id?: string | null
+          legacy_stored_balance?: number | null
+          legacy_table?: string | null
           linked_supplier_id?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           name: string
           notes?: string | null
           phone?: string | null
@@ -227,7 +252,11 @@ export type Database = {
           created_at?: string
           id?: string
           legacy_id?: string | null
+          legacy_stored_balance?: number | null
+          legacy_table?: string | null
           linked_supplier_id?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
@@ -247,6 +276,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_supplier_balance"
             referencedColumns: ["supplier_id"]
+          },
+          {
+            foreignKeyName: "customers_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -281,7 +317,10 @@ export type Database = {
           id: string
           idempotency_key: string | null
           legacy_id: string | null
+          legacy_table: string | null
           method: string
+          migrated_at: string | null
+          migration_batch_id: string | null
           notes: string | null
           status: Database["public"]["Enums"]["doc_status"]
           transaction_date: string
@@ -298,7 +337,10 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
           method?: string
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["doc_status"]
           transaction_date?: string
@@ -315,12 +357,23 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
           method?: string
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["doc_status"]
           transaction_date?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "expenses_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inventory_adjustment_items: {
         Row: {
@@ -479,6 +532,74 @@ export type Database = {
           },
         ]
       }
+      migration_batches: {
+        Row: {
+          created_by: string | null
+          finished_at: string | null
+          id: string
+          started_at: string | null
+          status: string | null
+          summary: Json | null
+        }
+        Insert: {
+          created_by?: string | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+          summary?: Json | null
+        }
+        Update: {
+          created_by?: string | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+          summary?: Json | null
+        }
+        Relationships: []
+      }
+      migration_issues: {
+        Row: {
+          batch_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          issue_type: string | null
+          legacy_id: string | null
+          legacy_table: string | null
+          severity: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          issue_type?: string | null
+          legacy_id?: string | null
+          legacy_table?: string | null
+          severity?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          issue_type?: string | null
+          legacy_id?: string | null
+          legacy_table?: string | null
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_issues_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opening_balances: {
         Row: {
           amount: number
@@ -561,7 +682,10 @@ export type Database = {
           id: string
           idempotency_key: string | null
           legacy_id: string | null
+          legacy_table: string | null
           method: string
+          migrated_at: string | null
+          migration_batch_id: string | null
           notes: string | null
           party_id: string
           party_name: string | null
@@ -583,7 +707,10 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
           method?: string
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           party_id: string
           party_name?: string | null
@@ -605,7 +732,10 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
           method?: string
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           party_id?: string
           party_name?: string | null
@@ -615,7 +745,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["doc_status"]
           transaction_date?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payments_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -628,6 +766,10 @@ export type Database = {
           id: string
           image_url: string | null
           legacy_id: string | null
+          legacy_stored_quantity: number | null
+          legacy_table: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           min_stock: number
           name: string
           notes: string | null
@@ -648,6 +790,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           legacy_id?: string | null
+          legacy_stored_quantity?: number | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           min_stock?: number
           name: string
           notes?: string | null
@@ -668,6 +814,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           legacy_id?: string | null
+          legacy_stored_quantity?: number | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           min_stock?: number
           name?: string
           notes?: string | null
@@ -684,6 +834,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
             referencedColumns: ["id"]
           },
         ]
@@ -833,6 +990,9 @@ export type Database = {
           id: string
           idempotency_key: string | null
           legacy_id: string | null
+          legacy_table: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           notes: string | null
           original_purchase_id: string | null
           payment_method: string | null
@@ -855,6 +1015,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           original_purchase_id?: string | null
           payment_method?: string | null
@@ -877,6 +1040,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           original_purchase_id?: string | null
           payment_method?: string | null
@@ -890,6 +1056,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "purchase_returns_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchase_returns_original_purchase_id_fkey"
             columns: ["original_purchase_id"]
@@ -925,6 +1098,9 @@ export type Database = {
           id: string
           idempotency_key: string | null
           legacy_id: string | null
+          legacy_table: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           notes: string | null
           paid: number
           payment_method: string | null
@@ -948,6 +1124,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           paid?: number
           payment_method?: string | null
@@ -971,6 +1150,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           paid?: number
           payment_method?: string | null
@@ -984,6 +1166,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "purchases_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchases_supplier_id_fkey"
             columns: ["supplier_id"]
@@ -1132,6 +1321,9 @@ export type Database = {
           id: string
           idempotency_key: string | null
           legacy_id: string | null
+          legacy_table: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           notes: string | null
           original_sale_id: string | null
           payment_method: string | null
@@ -1155,6 +1347,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           original_sale_id?: string | null
           payment_method?: string | null
@@ -1178,6 +1373,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           original_sale_id?: string | null
           payment_method?: string | null
@@ -1203,6 +1401,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_customer_balance"
             referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "sale_returns_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "sale_returns_original_sale_id_fkey"
@@ -1227,6 +1432,9 @@ export type Database = {
           id: string
           idempotency_key: string | null
           legacy_id: string | null
+          legacy_table: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           notes: string | null
           paid: number
           payment_method: string | null
@@ -1251,6 +1459,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           paid?: number
           payment_method?: string | null
@@ -1275,6 +1486,9 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           legacy_id?: string | null
+          legacy_table?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           notes?: string | null
           paid?: number
           payment_method?: string | null
@@ -1301,6 +1515,13 @@ export type Database = {
             referencedRelation: "v_customer_balance"
             referencedColumns: ["customer_id"]
           },
+          {
+            foreignKeyName: "sales_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
+          },
         ]
       }
       suppliers: {
@@ -1310,7 +1531,11 @@ export type Database = {
           created_at: string
           id: string
           legacy_id: string | null
+          legacy_stored_balance: number | null
+          legacy_table: string | null
           linked_customer_id: string | null
+          migrated_at: string | null
+          migration_batch_id: string | null
           name: string
           notes: string | null
           phone: string | null
@@ -1322,7 +1547,11 @@ export type Database = {
           created_at?: string
           id?: string
           legacy_id?: string | null
+          legacy_stored_balance?: number | null
+          legacy_table?: string | null
           linked_customer_id?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           name: string
           notes?: string | null
           phone?: string | null
@@ -1334,7 +1563,11 @@ export type Database = {
           created_at?: string
           id?: string
           legacy_id?: string | null
+          legacy_stored_balance?: number | null
+          legacy_table?: string | null
           linked_customer_id?: string | null
+          migrated_at?: string | null
+          migration_batch_id?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
@@ -1354,6 +1587,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_customer_balance"
             referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "suppliers_migration_batch_id_fkey"
+            columns: ["migration_batch_id"]
+            isOneToOne: false
+            referencedRelation: "migration_batches"
+            referencedColumns: ["id"]
           },
         ]
       }
