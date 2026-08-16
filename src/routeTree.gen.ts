@@ -24,6 +24,7 @@ import { Route as AuthenticatedMoreRouteImport } from './routes/_authenticated/m
 import { Route as AuthenticatedMigrationReviewRouteImport } from './routes/_authenticated/migration-review'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
+import { Route as AuthenticatedCutoverRouteImport } from './routes/_authenticated/cutover'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
@@ -115,6 +116,11 @@ const AuthenticatedExpensesRoute = AuthenticatedExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCutoverRoute = AuthenticatedCutoverRouteImport.update({
+  id: '/cutover',
+  path: '/cutover',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCustomersRoute = AuthenticatedCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/customers': typeof AuthenticatedCustomersRoute
+  '/cutover': typeof AuthenticatedCutoverRoute
   '/expenses': typeof AuthenticatedExpensesRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/migration-review': typeof AuthenticatedMigrationReviewRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/customers': typeof AuthenticatedCustomersRoute
+  '/cutover': typeof AuthenticatedCutoverRoute
   '/expenses': typeof AuthenticatedExpensesRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/migration-review': typeof AuthenticatedMigrationReviewRoute
@@ -261,6 +269,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
+  '/_authenticated/cutover': typeof AuthenticatedCutoverRoute
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/migration-review': typeof AuthenticatedMigrationReviewRoute
@@ -294,6 +303,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/audit'
     | '/customers'
+    | '/cutover'
     | '/expenses'
     | '/inventory'
     | '/migration-review'
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/audit'
     | '/customers'
+    | '/cutover'
     | '/expenses'
     | '/inventory'
     | '/migration-review'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/audit'
     | '/_authenticated/customers'
+    | '/_authenticated/cutover'
     | '/_authenticated/expenses'
     | '/_authenticated/inventory'
     | '/_authenticated/migration-review'
@@ -496,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedExpensesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cutover': {
+      id: '/_authenticated/cutover'
+      path: '/cutover'
+      fullPath: '/cutover'
+      preLoaderRoute: typeof AuthenticatedCutoverRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/customers': {
       id: '/_authenticated/customers'
       path: '/customers'
@@ -635,6 +654,7 @@ const AuthenticatedReportsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
+  AuthenticatedCutoverRoute: typeof AuthenticatedCutoverRoute
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedMigrationReviewRoute: typeof AuthenticatedMigrationReviewRoute
@@ -654,6 +674,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
+  AuthenticatedCutoverRoute: AuthenticatedCutoverRoute,
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedMigrationReviewRoute: AuthenticatedMigrationReviewRoute,

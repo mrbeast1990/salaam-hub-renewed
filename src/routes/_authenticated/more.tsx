@@ -12,7 +12,8 @@ import {
   ShoppingCart,
   DollarSign,
   Package,
-  Database
+  Database,
+  Rocket
 } from "lucide-react";
 
 
@@ -31,6 +32,7 @@ const MENU_ITEMS = [
     title: "الضبط والإعدادات",
     items: [
       { to: "/settings", label: "إعدادات المنشأة", icon: Settings, description: "الاسم، الشعار، العملة، والأرصدة الافتتاحية" },
+      { to: "/cutover", label: "التحويل النهائي (Cutover)", icon: Rocket, description: "تفعيل نظام الإنتاج والتحويل من النظام القديم" },
       { to: "/notifications", label: "التنبيهات", icon: Bell, description: "تنبيهات المخزون والعمليات" },
       { to: "/migration-review", label: "مركز الترحيل", icon: Database, description: "متابعة نقل البيانات من النظام القديم" },
     ]

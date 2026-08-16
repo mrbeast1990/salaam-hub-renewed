@@ -17,8 +17,10 @@ import {
   ArrowUpRight,
   History,
   Info,
+  Rocket,
 } from "lucide-react";
 import { getDashboardStats } from "@/lib/reports/dashboard.functions";
+import { getCutoverStatus } from "@/lib/migration/cutover.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -42,10 +44,37 @@ function money(v: number) {
 
 function DashboardPage() {
   const fetchStats = useServerFn(getDashboardStats);
+  const { data: cutover } = useQuery({
+    queryKey: ['cutover-status'],
+    queryFn: () => getCutoverStatus()
+  });
   const { data, isPending, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: () => fetchStats(),
   });
+
+  if (cutover && !cutover.isLive) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center space-y-6" dir="rtl">
+        <div className="size-20 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+          <Info className="size-10" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">النظام قيد التحديث</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            النظام حالياً في مرحلة ما قبل التحويل النهائي (Pre-Cutover). يرجى إتمام عملية التحويل للبدء في استخدام نظام الإنتاج.
+          </p>
+        </div>
+        <Button asChild size="lg" className="gap-2">
+          <Link to="/cutover">
+            <Rocket className="size-5" />
+            انتقل إلى صفحة التحويل النهائي
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6 pb-8">
