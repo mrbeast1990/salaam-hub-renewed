@@ -78,9 +78,9 @@ function MigrationReviewPage() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className={`p-4 rounded-lg border ${status?.summary?.status === 'REAL DRY RUN PASSED' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
+        <div className={`p-4 rounded-lg border ${status?.summary?.verdict === 'REAL IMPORT SUCCESSFUL' ? 'bg-green-100 border-green-300' : status?.summary?.status === 'REAL DRY RUN PASSED' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
           <h3 className="font-semibold text-sm opacity-80">الحالة العامة</h3>
-          <p className="text-xl font-bold">{status?.summary?.status || 'لم يتم البدء'}</p>
+          <p className="text-xl font-bold">{status?.summary?.verdict || status?.summary?.status || 'لم يتم البدء'}</p>
         </div>
         
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
