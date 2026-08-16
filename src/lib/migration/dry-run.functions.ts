@@ -25,10 +25,7 @@ export const startDryRunMigration = createServerFn({ method: "POST" })
 
     if (batchError || !batch) throw batchError || new Error("Failed to create batch");
 
-    // 2. Perform mock validation logic (Stage 5 - التحقق قبل الإدخال)
-    // In a real migration, this would fetch from the legacy DB.
-    // Here we just update the batch to show the process works.
-    
+    // 2. Perform mock validation logic
     const { error: updateError } = await supabaseAdmin
       .from("migration_batches" as any)
       .update({
@@ -41,7 +38,7 @@ export const startDryRunMigration = createServerFn({ method: "POST" })
           notes: 'Dry run completed successfully. Ready for actual data mapping.'
         }
       })
-      .eq('id', batch.id);
+      .eq('id', (batch as any).id);
 
     if (updateError) throw updateError;
 
