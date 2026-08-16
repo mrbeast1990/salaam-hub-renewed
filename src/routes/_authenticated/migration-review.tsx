@@ -81,11 +81,18 @@ function MigrationReviewPage() {
           </thead>
           <tbody>
             {[
-              { label: 'المنتجات', key: 'products' },
+              { label: 'الأصناف', key: 'products' },
+              { label: 'التصنيفات', key: 'categories' },
               { label: 'العملاء', key: 'customers' },
               { label: 'الموردين', key: 'suppliers' },
               { label: 'المبيعات', key: 'sales' },
+              { label: 'بنود المبيعات', key: 'sale_items' },
+              { label: 'المشتريات', key: 'purchases' },
+              { label: 'بنود المشتريات', key: 'purchase_items' },
               { label: 'السدادات', key: 'payments' },
+              { label: 'المصروفات', key: 'expenses' },
+              { label: 'حركات الخزينة', key: 'treasury' },
+              { label: 'المرتجعات', key: 'returns' },
             ].map(row => (
               <tr key={row.key} className="border-b last:border-0 hover:bg-gray-50/50">
                 <td className="p-3 border-l font-medium">{row.label}</td>
@@ -101,6 +108,20 @@ function MigrationReviewPage() {
         </table>
       </div>
 
+      {summary.mapping && (
+        <div className="bg-white rounded-lg border shadow-sm p-4">
+          <h3 className="font-bold border-b pb-2 mb-4">Legacy Table Mapping</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {Object.entries(summary.mapping).map(([legacy, current]) => (
+              <div key={legacy} className="flex justify-between p-2 bg-gray-50 rounded">
+                <span className="font-mono text-gray-500">{legacy}</span>
+                <span className="font-bold text-primary">→ {current as string}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="p-6 bg-gray-50 border rounded-lg space-y-4">
         <div className="flex items-center justify-between border-b pb-4">
           <span className="font-bold">Migration Batch ID:</span>
@@ -111,7 +132,7 @@ function MigrationReviewPage() {
           <span>{summary.source || 'LEGACY_POSTGRES_READ_ONLY'}</span>
         </div>
         <div className="p-4 bg-white border-r-4 border-r-blue-500 rounded text-sm text-gray-600">
-           ملاحظة: الـ Dry Run الحقيقي أكد وجود سداد صيدلية المدينة بقيمة 20,000 بتاريخ 2026-05-08 مع مطابقة الـ Mapping لبيانات الـ NULL Workspace.
+           ملاحظة: الـ Dry Run الحقيقي أكد وجود سداد صيدلية المدينة بقيمة 20,000 بتاريخ 2026-05-08 مع مطابقة الـ Mapping لبيانات الـ NULL Workspace. يتم حساب الأرصدة والمخزون من الحركات الفعلية مع الاحتفاظ بالقيم القديمة للمقارنة.
         </div>
       </div>
     </div>
