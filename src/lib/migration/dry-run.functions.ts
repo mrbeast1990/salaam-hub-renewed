@@ -23,7 +23,7 @@ export const startDryRunMigration = createServerFn({ method: "POST" })
       .select()
       .single();
 
-    if (batchError) throw batchError;
+    if (batchError || !batch) throw batchError || new Error("Failed to create batch");
 
     // 2. Perform mock validation logic (Stage 5 - التحقق قبل الإدخال)
     // In a real migration, this would fetch from the legacy DB.
