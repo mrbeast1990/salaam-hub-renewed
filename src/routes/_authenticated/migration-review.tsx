@@ -65,10 +65,16 @@ function MigrationReviewPage() {
     <div className="p-6 space-y-6 max-w-6xl mx-auto" dir="rtl">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">مراجعة الترحيل (M8)</h1>
-        <Button onClick={handleRun} variant="outline" className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          تحديث Dry Run
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleRunDryRun} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            تحديث Dry Run
+          </Button>
+          <Button onClick={handleRunImport} variant="default" className="gap-2 bg-blue-600 hover:bg-blue-700">
+            <DatabaseIcon className="w-4 h-4" />
+            بدء الاستيراد الفعلي
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
