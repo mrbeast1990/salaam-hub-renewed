@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMigrationStats, getMigrationBatches } from '@/lib/migration/migration.functions';
+import { startDryRunMigration } from '@/lib/migration/dry-run.functions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,8 @@ export const Route = createFileRoute('/_authenticated/migration-review')({
 });
 
 function MigrationReviewPage() {
+  const queryClient = useQueryClient();
+  
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['migration-stats'],
     queryFn: () => getMigrationStats(),
@@ -22,6 +25,13 @@ function MigrationReviewPage() {
   const { data: batches, isLoading: batchesLoading } = useQuery({
     queryKey: ['migration-batches'],
     queryFn: () => getMigrationBatches(),
+  });
+
+  const dryRunMutation = useMutation({
+    mutationFn: () => startDryRunMigration(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['migration-batches'] });
+    }
   });
 
   return (
@@ -34,9 +44,14 @@ function MigrationReviewPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <RefreshCcw className="w-4 h-4 ml-2" />
-            تحديث البيانات
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => dryRunMutation.mutate()}
+            disabled={dryRunMutation.isPending}
+          >
+            <RefreshCcw className={`w-4 h-4 ml-2 ${dryRunMutation.isPending ? 'animate-spin' : ''}`} />
+            تشغيل تجريبي (Dry Run)
           </Button>
         </div>
       </div>
