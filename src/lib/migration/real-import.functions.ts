@@ -69,8 +69,8 @@ export const runRealImport = createServerFn({ method: "POST" })
 
       // 4. Record Issues
       await supabaseAdmin.from('migration_issues' as any).insert([
-          { batch_id: batch.id, entity_type: 'product', severity: 'medium', code: 'DUPLICATE', message: '3 products skipped' },
-          { batch_id: batch.id, entity_type: 'sale', severity: 'high', code: 'ORPHAN', message: '5 sales without items skipped' }
+          { batch_id: (batch as any).id, entity_type: 'product', severity: 'medium', code: 'DUPLICATE', message: '3 products skipped' },
+          { batch_id: (batch as any).id, entity_type: 'sale', severity: 'high', code: 'ORPHAN', message: '5 sales without items skipped' }
       ]);
 
       // 5. Run Audit and Reconciliation
