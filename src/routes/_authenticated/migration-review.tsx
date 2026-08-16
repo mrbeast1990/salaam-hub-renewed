@@ -99,6 +99,25 @@ function MigrationReviewPage() {
         </div>
       </div>
 
+      {summary.imported_counts && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between border-b border-green-200 pb-2">
+            <h3 className="font-bold text-green-800">إحصائيات الاستيراد الفعلي (REAL_IMPORT)</h3>
+            <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Batch ID: {status?.id}</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatItem label="الأصناف المستوردة" value={summary.imported_counts.products} />
+            <StatItem label="العملاء المستوردين" value={summary.imported_counts.customers} />
+            <StatItem label="المبيعات المستوردة" value={summary.imported_counts.sales} />
+            <StatItem label="السدادات المستوردة" value={summary.imported_counts.payments} />
+            <StatItem label="المكررات (Skipped)" value={summary.skipped_counts?.products || 0} color="text-orange-600" />
+            <StatItem label="أيتام (Review)" value={summary.skipped_counts?.sales || 0} color="text-red-600" />
+            <StatItem label="درجة الصحة" value={`${summary.health_score}%`} color="text-blue-700" />
+            <StatItem label="رصيد الخزينة" value={summary.reconciliation?.treasury?.balance?.toLocaleString()} color="text-emerald-700" />
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg border overflow-hidden shadow-sm">
         <table className="w-full text-right border-collapse">
           <thead>
@@ -114,25 +133,20 @@ function MigrationReviewPage() {
           </thead>
           <tbody>
             {[
-              { label: 'الأصناف', key: 'products' },
-              { label: 'التصنيفات', key: 'categories' },
-              { label: 'العملاء', key: 'customers' },
-              { label: 'الموردين', key: 'suppliers' },
-              { label: 'المبيعات', key: 'sales' },
-              { label: 'بنود المبيعات', key: 'sale_items' },
-              { label: 'المشتريات', key: 'purchases' },
-              { label: 'بنود المشتريات', key: 'purchase_items' },
-              { label: 'السدادات', key: 'payments' },
-              { label: 'المصروفات', key: 'expenses' },
-              { label: 'حركات الخزينة', key: 'treasury' },
-              { label: 'المرتجعات', key: 'returns' },
+              { label: 'الأصناف', key: 'products', importedKey: 'products' },
+              { label: 'التصنيفات', key: 'categories', importedKey: 'categories' },
+              { label: 'العملاء', key: 'customers', importedKey: 'customers' },
+              { label: 'الموردين', key: 'suppliers', importedKey: 'suppliers' },
+              { label: 'المبيعات', key: 'sales', importedKey: 'sales' },
+              { label: 'المشتريات', key: 'purchases', importedKey: 'purchases' },
+              { label: 'السدادات', key: 'payments', importedKey: 'payments' },
             ].map(row => (
               <tr key={row.key} className="border-b last:border-0 hover:bg-gray-50/50">
                 <td className="p-3 border-l font-medium">{row.label}</td>
-                <td className="p-3 border-l">{summary[row.key]?.total || 0}</td>
-                <td className="p-3 border-l font-semibold text-green-700">{summary[row.key]?.valid || 0}</td>
+                <td className="p-3 border-l text-gray-500">{summary[row.key]?.total || 0}</td>
+                <td className="p-3 border-l font-bold text-green-700">{summary.imported_counts?.[row.importedKey as string] || summary[row.key]?.valid || 0}</td>
                 <td className="p-3 border-l text-blue-700">{summary[row.key]?.review || 0}</td>
-                <td className="p-3 border-l text-orange-700">{summary[row.key]?.duplicate || 0}</td>
+                <td className="p-3 border-l text-orange-700">{summary.skipped_counts?.[row.importedKey as string] || summary[row.key]?.duplicate || 0}</td>
                 <td className="p-3 border-l text-red-700">{summary[row.key]?.orphan || 0}</td>
                 <td className="p-3">{summary[row.key]?.invalid || 0}</td>
               </tr>
@@ -171,6 +185,14 @@ function MigrationReviewPage() {
     </div>
   )
 }
+
+function StatItem({ label, value, color = "text-gray-900" }: { label: string, value: any, color?: string }) {
+  return (
+    <div className="bg-white/50 p-3 rounded border border-green-100">
+      <p className="text-[10px] text-gray-500 mb-1">{label}</p>
+      <p className={`text-lg font-bold ${color}`}>{value}</p>
+    </div>
+  }
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
