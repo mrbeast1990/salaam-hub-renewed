@@ -1,7 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/migration-review')({
-  component: MigrationReviewPage
+  component: MigrationReviewPage,
+  loader: async ({ context }) => {
+    return context.queryClient.ensureQueryData({
+      queryKey: ['migration-status'],
+      queryFn: async () => {
+        const { supabase } = await import('@/integrations/supabase/client')
+        const { data } = await supabase
+          .from('migration_batches' as any)
+          .select('*')
+          .order('started_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        return data as any
+      }
+    })
+  }
 })
 
 function MigrationReviewPage() {
