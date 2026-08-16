@@ -88,6 +88,7 @@ export const runSmokeTest = createServerFn({ method: "POST" })
         amount: 200,
         transaction_date: new Date().toISOString().split('T')[0],
         method: 'cash',
+        notes: 'SMOKE_TEST_RECORD',
         idempotency_key: `${idempotencyPrefix}_PAYMENT_1`
       };
 
