@@ -172,9 +172,10 @@ function MigrationReviewPage() {
   )
 }
 
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Database as DatabaseIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
 import { runRealDryRun } from '@/lib/migration/dry-run.functions'
+import { runRealImport } from '@/lib/migration/real-import.functions'
 import { toast } from 'sonner'
