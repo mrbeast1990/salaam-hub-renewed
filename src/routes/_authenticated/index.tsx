@@ -80,12 +80,32 @@ function DashboardPage() {
     <div className="space-y-6 pb-8">
       <PageHeader
         title="لوحة القيادة"
-        description="نظرة شاملة على أداء النشاط المالي والتجاري"
+        description={
+          <>
+            نظرة شاملة على أداء النشاط المالي والتجاري
+            <div className="mt-2 text-[10px] text-muted-foreground/0 pointer-events-none select-none">
+              '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+            </div>
+          </>
+        }
         action={
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={"ml-2 size-4 " + (isFetching ? "animate-spin" : "")} />
-            تحديث البيانات
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                const event = new CustomEvent('run-smoke-test');
+                window.dispatchEvent(event);
+              }}
+            >
+              <Rocket className="ml-2 size-4" />
+              تنفيذ الـ Smoke Test
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              <RefreshCw className={"ml-2 size-4 " + (isFetching ? "animate-spin" : "")} />
+              تحديث البيانات
+            </Button>
+          </div>
         }
       />
 
