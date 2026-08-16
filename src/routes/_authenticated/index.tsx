@@ -47,10 +47,32 @@ function money(v: number) {
 
 function DashboardPage() {
   const fetchStats = useServerFn(getDashboardStats);
+  const startSmokeTest = useServerFn(runSmokeTest);
   const { data: cutover } = useQuery({
     queryKey: ['cutover-status'],
     queryFn: () => getCutoverStatus()
   });
+
+  useEffect(() => {
+    const handleSmokeTest = async () => {
+      const toastId = toast.loading("جاري تنفيذ اختبار الـ Smoke Test الشامل...");
+      try {
+        const result = await startSmokeTest();
+        if (result.status === 'PRODUCTION SMOKE TEST PASSED') {
+          toast.success("نجح اختبار الـ Smoke Test! تم التحقق من كافة العمليات وسلامة الأرصدة.", { id: toastId, duration: 5000 });
+          refetch();
+        } else {
+          toast.error(`فشل الاختبار: ${result.error}`, { id: toastId, duration: 8000 });
+        }
+      } catch (err: any) {
+        toast.error(`خطأ غير متوقع: ${err.message}`, { id: toastId });
+      }
+    };
+
+    window.addEventListener('run-smoke-test', handleSmokeTest);
+    return () => window.removeEventListener('run-smoke-test', handleSmokeTest);
+  }, [startSmokeTest]);
+
   const { data, isPending, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: () => fetchStats(),
