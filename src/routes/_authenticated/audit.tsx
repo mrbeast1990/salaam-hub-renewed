@@ -81,12 +81,20 @@ function AuditPage() {
 
       <Card className="bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-900">
         <CardContent className="pt-6">
-          <div className="flex gap-3">
-            <Info className="size-5 text-blue-500 shrink-0" />
-            <div className="text-xs text-blue-800 dark:text-blue-300 space-y-1">
-              <p className="font-bold">ملاحظة أمنية:</p>
-              <p>هذا المركز للقراءة فقط. لا يمكن إجراء أي تعديلات يدوية على الحركات لضمان سلامة سجل التدقيق Audit Log. أي تصحيح يجب أن يتم عبر مستندات عكسية (مرتجعات) أو حركات تسوية معتمدة.</p>
+          <div className="flex gap-3 justify-between items-center">
+            <div className="flex gap-3">
+              <Info className="size-5 text-blue-500 shrink-0" />
+              <div className="text-xs text-blue-800 dark:text-blue-300 space-y-1">
+                <p className="font-bold">ملاحظة أمنية:</p>
+                <p>هذا المركز للقراءة فقط. لا يمكن إجراء أي تعديلات يدوية على الحركات لضمان سلامة سجل التدقيق Audit Log. أي تصحيح يجب أن يتم عبر مستندات عكسية (مرتجعات) أو حركات تسوية معتمدة.</p>
+              </div>
             </div>
+            <Link 
+              to="/migration-review"
+              className="text-xs font-bold text-blue-700 hover:underline bg-white px-3 py-2 rounded border border-blue-200"
+            >
+              مراجعة الترحيل (Legacy Import)
+            </Link>
           </div>
         </CardContent>
       </Card>
