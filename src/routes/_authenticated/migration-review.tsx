@@ -114,7 +114,7 @@ function MigrationReviewPage() {
                     <TableCell className="text-center">{s.total}</TableCell>
                     <TableCell className="text-center">{s.migrated}</TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={s.total === s.migrated && s.total > 0 ? "success" : "outline"}>
+                      <Badge variant={s.total === s.migrated && s.total > 0 ? "default" : "outline"}>
                         {s.total > 0 ? Math.round((s.migrated / s.total) * 100) : 0}%
                       </Badge>
                     </TableCell>
@@ -145,7 +145,7 @@ function MigrationReviewPage() {
                       {format(new Date(batch.started_at), 'PPP p', { locale: ar })}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={batch.status === 'completed' ? 'success' : 'default'}>
+                      <Badge variant={batch.status === 'completed' ? 'secondary' : 'default'}>
                         {batch.status}
                       </Badge>
                     </TableCell>
