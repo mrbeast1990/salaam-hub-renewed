@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/migration-review')({
 })
 
 function MigrationReviewPage() {
-  const { data: status } = useQuery({
+  const { data: status } = useSuspenseQuery({
     queryKey: ['migration-status'],
     queryFn: async () => {
       const { supabase } = await import('@/integrations/supabase/client')
@@ -35,12 +35,24 @@ function MigrationReviewPage() {
   })
 
   const runDryRun = useServerFn(runRealDryRun)
+  const runImport = useServerFn(runRealImport)
 
-  const handleRun = async () => {
+  const handleRunDryRun = async () => {
     const id = toast.loading('جاري تشغيل Dry Run حقيقي...')
     try {
       await runDryRun()
       toast.success('اكتمل Dry Run بنجاح', { id })
+      window.location.reload()
+    } catch (e: any) {
+      toast.error(e.message, { id })
+    }
+  }
+
+  const handleRunImport = async () => {
+    const id = toast.loading('جاري تنفيذ الاستيراد الفعلي...')
+    try {
+      await runImport()
+      toast.success('اكتمل الاستيراد الفعلي بنجاح', { id })
       window.location.reload()
     } catch (e: any) {
       toast.error(e.message, { id })
