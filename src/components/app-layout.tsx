@@ -8,7 +8,10 @@ import {
   ShoppingCart,
   Truck,
   Package,
-  MoreHorizontal,
+  Users,
+  BarChart3,
+  ShieldCheck,
+  Settings,
   LogOut,
   Store,
 } from "lucide-react";
@@ -18,7 +21,10 @@ const NAV = [
   { to: "/sales", label: "مبيعات", icon: ShoppingCart },
   { to: "/purchases", label: "مشتريات", icon: Truck },
   { to: "/inventory", label: "مخزون", icon: Package },
-  { to: "/more", label: "المزيد", icon: MoreHorizontal },
+  { to: "/customers", label: "الزبائن", icon: Users },
+  { to: "/reports", label: "التقارير", icon: BarChart3 },
+  { to: "/audit", label: "التدقيق", icon: ShieldCheck },
+  { to: "/settings", label: "الإعدادات", icon: Settings },
 ] as const;
 
 export function AppLayout({ children }: { children: ReactNode }) {
@@ -73,17 +79,17 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-4 md:pb-8">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-background md:hidden">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-8">
           {NAV.map(({ to, label, icon: Icon }) => (
             <Link
               key={to}
               to={to}
               activeOptions={{ exact: to === "/" }}
-              className="flex flex-col items-center gap-1 py-2 text-[11px] text-muted-foreground"
+              className="flex flex-col items-center gap-1 py-2 text-[10px] text-muted-foreground"
               activeProps={{ className: "text-primary font-medium" }}
             >
-              <Icon className="size-5" />
-              {label}
+              <Icon className="size-4" />
+              <span className="truncate w-full text-center">{label}</span>
             </Link>
           ))}
         </div>
