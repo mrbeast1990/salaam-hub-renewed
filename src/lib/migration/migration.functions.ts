@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 export const getMigrationBatches = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabaseAdmin
-      .from("migration_batches")
+      .from("migration_batches" as any)
       .select("*")
       .order("started_at", { ascending: false });
     
