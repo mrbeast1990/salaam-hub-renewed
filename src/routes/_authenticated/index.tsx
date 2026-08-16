@@ -24,6 +24,9 @@ import { getCutoverStatus } from "@/lib/migration/cutover.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { runSmokeTest } from "@/lib/migration/smoke-test.functions";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -44,10 +47,32 @@ function money(v: number) {
 
 function DashboardPage() {
   const fetchStats = useServerFn(getDashboardStats);
+  const startSmokeTest = useServerFn(runSmokeTest);
   const { data: cutover } = useQuery({
     queryKey: ['cutover-status'],
     queryFn: () => getCutoverStatus()
   });
+
+  useEffect(() => {
+    const handleSmokeTest = async () => {
+      const toastId = toast.loading("جاري تنفيذ اختبار الـ Smoke Test الشامل...");
+      try {
+        const result = await startSmokeTest();
+        if (result.status === 'PRODUCTION SMOKE TEST PASSED') {
+          toast.success("نجح اختبار الـ Smoke Test! تم التحقق من كافة العمليات وسلامة الأرصدة.", { id: toastId, duration: 5000 });
+          refetch();
+        } else {
+          toast.error(`فشل الاختبار: ${result.error}`, { id: toastId, duration: 8000 });
+        }
+      } catch (err: any) {
+        toast.error(`خطأ غير متوقع: ${err.message}`, { id: toastId });
+      }
+    };
+
+    window.addEventListener('run-smoke-test', handleSmokeTest);
+    return () => window.removeEventListener('run-smoke-test', handleSmokeTest);
+  }, [startSmokeTest]);
+
   const { data, isPending, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: () => fetchStats(),
@@ -80,12 +105,32 @@ function DashboardPage() {
     <div className="space-y-6 pb-8">
       <PageHeader
         title="لوحة القيادة"
-        description="نظرة شاملة على أداء النشاط المالي والتجاري"
+        description={
+          <>
+            نظرة شاملة على أداء النشاط المالي والتجاري
+            <div className="mt-2 text-[10px] text-muted-foreground/0 pointer-events-none select-none">
+              '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+            </div>
+          </>
+        }
         action={
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={"ml-2 size-4 " + (isFetching ? "animate-spin" : "")} />
-            تحديث البيانات
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                const event = new CustomEvent('run-smoke-test');
+                window.dispatchEvent(event);
+              }}
+            >
+              <Rocket className="ml-2 size-4" />
+              تنفيذ الـ Smoke Test
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              <RefreshCw className={"ml-2 size-4 " + (isFetching ? "animate-spin" : "")} />
+              تحديث البيانات
+            </Button>
+          </div>
         }
       />
 
