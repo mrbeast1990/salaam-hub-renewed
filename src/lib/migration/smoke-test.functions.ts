@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { postSale, cancelSale } from "./sales.functions";
-import { postPurchase, cancelPurchase } from "./purchases.functions";
-import { postPayment, cancelPayment } from "./payments.functions";
+import { postSale, cancelSale } from "../sales/sales.functions";
+import { postPurchase, cancelPurchase } from "../purchases/purchases.functions";
+import { postPayment, cancelPayment } from "../payments/payments.functions";
 import { getDashboardStats } from "../reports/dashboard.functions";
 import { getAuditSummary } from "../reports/audit.functions";
 
