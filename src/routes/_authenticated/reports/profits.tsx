@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_authenticated/reports/profits')({
 });
 
 function ProfitReportPage() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{ from_date?: string; to_date?: string }>({
     from_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
     to_date: format(new Date(), "yyyy-MM-dd"),
   });
