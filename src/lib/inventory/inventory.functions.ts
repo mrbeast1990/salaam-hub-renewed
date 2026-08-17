@@ -12,7 +12,7 @@ export const getProductMovements = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     let query = supabase
-      .from("stock_movements")
+      .from("inventory_movements")
       .select("*")
       .eq("product_id", data.product_id)
       .order("transaction_date", { ascending: false })
