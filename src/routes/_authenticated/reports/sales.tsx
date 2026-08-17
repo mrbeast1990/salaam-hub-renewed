@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { getSalesReport } from '@/lib/reports/sales.functions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency, formatNumber } from "@/lib/utils";
 
 export const Route = createFileRoute('/_authenticated/reports/sales')({
   component: SalesReportPage,
@@ -26,10 +27,10 @@ function SalesReportPage() {
       ) : (
         <div className="grid gap-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">الإجمالي</p><p className="text-2xl font-bold">{data?.stats.total.toFixed(2)}</p></CardContent></Card>
-            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">العدد</p><p className="text-2xl font-bold">{data?.stats.count}</p></CardContent></Card>
-            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">نقدي</p><p className="text-2xl font-bold text-green-600">{data?.stats.cash.toFixed(2)}</p></CardContent></Card>
-            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">آجل</p><p className="text-2xl font-bold text-amber-600">{data?.stats.credit.toFixed(2)}</p></CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">الإجمالي</p><p className="text-2xl font-bold">{formatCurrency(data?.stats.total)}</p></CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">العدد</p><p className="text-2xl font-bold">{formatNumber(data?.stats.count)}</p></CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">نقدي</p><p className="text-2xl font-bold text-green-600">{formatCurrency(data?.stats.cash)}</p></CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><p className="text-sm text-muted-foreground">آجل</p><p className="text-2xl font-bold text-amber-600">{formatCurrency(data?.stats.credit)}</p></CardContent></Card>
           </div>
           
           <Card>
@@ -42,7 +43,7 @@ function SalesReportPage() {
                       <td className="p-2">{s.transaction_date}</td>
                       <td className="p-2">{s.doc_number}</td>
                       <td className="p-2">{s.customers?.name || '-'}</td>
-                      <td className="p-2 text-left">{Number(s.total).toFixed(2)}</td>
+                      <td className="p-2 text-left">{formatCurrency(s.total)}</td>
                     </tr>
                   ))}
                 </tbody>

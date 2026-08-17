@@ -6,6 +6,7 @@ import { useServerFn } from '@tanstack/react-start';
 import { getTreasuryReport } from '@/lib/reports/treasury.functions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowDownLeft, ArrowUpRight, Banknote } from 'lucide-react';
+import { formatCurrency } from "@/lib/utils";
 
 export const Route = createFileRoute('/_authenticated/reports/treasury')({
   component: TreasuryReportPage,
@@ -18,7 +19,7 @@ function TreasuryReportPage() {
     queryFn: () => fetchReport({})
   });
 
-  const money = (v: number = 0) => v.toLocaleString('ar-EG', { minimumFractionDigits: 2 });
+  // Removed local money function
 
   return (
     <div className="space-y-6">
@@ -35,7 +36,7 @@ function TreasuryReportPage() {
                   <p className="text-sm font-medium text-green-600">إجمالي المقبوضات</p>
                   <ArrowDownLeft className="size-4 text-green-600" />
                 </div>
-                <p className="text-2xl font-bold mt-2">{money(data?.stats.totalIn)}</p>
+                <p className="text-2xl font-bold mt-2">{formatCurrency(data?.stats.totalIn)}</p>
               </CardContent>
             </Card>
             <Card className="bg-red-50/50 dark:bg-red-950/10 border-red-100">
@@ -44,7 +45,7 @@ function TreasuryReportPage() {
                   <p className="text-sm font-medium text-red-600">إجمالي المدفوعات</p>
                   <ArrowUpRight className="size-4 text-red-600" />
                 </div>
-                <p className="text-2xl font-bold mt-2">{money(data?.stats.totalOut)}</p>
+                <p className="text-2xl font-bold mt-2">{formatCurrency(data?.stats.totalOut)}</p>
               </CardContent>
             </Card>
             <Card className="bg-primary/5 border-primary/20">
@@ -53,7 +54,7 @@ function TreasuryReportPage() {
                   <p className="text-sm font-medium text-primary">صافي الحركة</p>
                   <Banknote className="size-4 text-primary" />
                 </div>
-                <p className="text-2xl font-bold mt-2">{money(data?.closingBalance)}</p>
+                <p className="text-2xl font-bold mt-2">{formatCurrency(data?.closingBalance)}</p>
               </CardContent>
             </Card>
           </div>
@@ -73,7 +74,7 @@ function TreasuryReportPage() {
                       </td>
                       <td className="p-2 text-muted-foreground text-xs">{m.source_type}</td>
                       <td className={`p-2 text-left font-mono font-bold ${m.direction === 'in' ? 'text-green-600' : 'text-red-600'}`}>
-                        {m.direction === 'in' ? '+' : '-'}{money(Number(m.amount))}
+                        {m.direction === 'in' ? '+' : '-'}{formatCurrency(m.amount)}
                       </td>
                     </tr>
                   ))}

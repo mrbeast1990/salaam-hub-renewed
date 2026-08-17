@@ -29,9 +29,7 @@ export const Route = createFileRoute("/_authenticated/")({
   component: DashboardPage,
 });
 
-function money(v: number) {
-  return v.toLocaleString("ar-EG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+import { formatCurrency, formatNumber } from "@/lib/utils";
 
 function DashboardPage() {
   const fetchStats = useServerFn(getDashboardStats);
@@ -71,7 +69,7 @@ function DashboardPage() {
           <CardContent className="p-4">
             <div className="text-[10px] opacity-80 mb-1">مبيعات اليوم</div>
             <div className="text-lg font-black tabular-nums">
-              {isPending ? <Skeleton className="h-6 w-16 bg-white/20" /> : money(data?.sales.today || 0)}
+              {isPending ? <Skeleton className="h-6 w-16 bg-white/20" /> : formatCurrency(data?.sales.today || 0)}
             </div>
           </CardContent>
         </Card>
@@ -80,7 +78,7 @@ function DashboardPage() {
           <CardContent className="p-4">
             <div className="text-[10px] text-muted-foreground mb-1">الخزينة</div>
             <div className="text-lg font-black tabular-nums text-emerald-600">
-              {isPending ? <Skeleton className="h-6 w-16" /> : money(data?.balances.treasury || 0)}
+              {isPending ? <Skeleton className="h-6 w-16" /> : formatCurrency(data?.balances.treasury || 0)}
             </div>
           </CardContent>
         </Card>
@@ -89,7 +87,7 @@ function DashboardPage() {
           <CardContent className="p-4">
             <div className="text-[10px] text-muted-foreground mb-1">مستحقات الزبائن</div>
             <div className="text-lg font-black tabular-nums text-blue-600">
-              {isPending ? <Skeleton className="h-6 w-16" /> : money(data?.balances.receivables || 0)}
+              {isPending ? <Skeleton className="h-6 w-16" /> : formatCurrency(data?.balances.receivables || 0)}
             </div>
           </CardContent>
         </Card>
@@ -130,7 +128,7 @@ function DashboardPage() {
             </div>
             <div>
               <div className="text-[9px] text-muted-foreground">الزبائن</div>
-              <div className="text-sm font-bold tabular-nums">{data?.balances.receivables || 0} ج.م</div>
+              <div className="text-sm font-bold tabular-nums">{formatCurrency(data?.balances.receivables || 0)} ج.م</div>
             </div>
           </CardContent>
         </Card>
@@ -141,7 +139,7 @@ function DashboardPage() {
             </div>
             <div>
               <div className="text-[9px] text-muted-foreground">المخزون</div>
-              <div className="text-sm font-bold tabular-nums">{data?.inventory.lowStockCount || 0} نواقص</div>
+              <div className="text-sm font-bold tabular-nums">{formatNumber(data?.inventory.lowStockCount || 0)} نواقص</div>
             </div>
           </CardContent>
         </Card>
