@@ -112,7 +112,7 @@ function DashboardPage() {
               '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                         
                                             
-                                            التحقق الأخير ثم Final Cutover
+                                            إصلاح حالة PRE-CUTOVER بعد ظهور البيانات الحقيقية
 
 التحقق النهائي مقبول، ويمكن الانتقال إلى Final Cutover بعد تأمين الـ8 Legacy Placeholder Products فقط.
 
