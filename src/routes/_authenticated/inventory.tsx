@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Plus, Search, Package, Image as ImageIcon, Edit2, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Search, Package, Image as ImageIcon, Edit2, AlertCircle, History as HistoryIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -150,7 +150,7 @@ function InventoryPage() {
                         <div className="flex justify-end gap-1">
                           <Button variant="ghost" size="icon" asChild>
                             <Link to="/products/$id" params={{ id: p.id }}>
-                              <History className="size-4" />
+                              <HistoryIcon className="size-4" />
                             </Link>
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
