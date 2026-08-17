@@ -24,8 +24,9 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         'payments', 'products', 'customers', 'suppliers', 'migration_batches'
       ];
       for (const t of tablesToClear) {
-        await supabaseAdmin.from(t).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        await supabaseAdmin.from(t as any).delete().neq('id' as any, '00000000-0000-0000-0000-000000000000' as any);
       }
+
 
       // 1. Setup Batch
       await supabaseAdmin.from("migration_batches" as any).insert({
