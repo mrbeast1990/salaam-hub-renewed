@@ -170,8 +170,11 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       console.log('Importing sales...');
       for (const s of rawSales) {
         const newId = crypto.randomUUID();
+        const { data: existing } = await supabaseAdmin.from('sales').select('id').eq('legacy_id', s.id).single();
+        const finalId = existing?.id || newId;
+
         const { error } = await supabaseAdmin.from('sales').upsert({
-          id: newId,
+          id: finalId,
           doc_number: s.invoice_number || s.doc_number || `SAL-${s.id.slice(0, 8)}`,
           customer_id: mapping.customers[s.customer_id] || null,
           customer_name: s.customer_name,
@@ -186,8 +189,9 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           migrated_at: migratedAt
         }, { onConflict: 'legacy_id' });
         if (error) throw error;
-        mapping.sales[s.id] = newId;
+        mapping.sales[s.id] = finalId;
       }
+
 
       // 8. Import Sale Items
       console.log('Importing sale items...');
@@ -206,8 +210,11 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       console.log('Importing purchases...');
       for (const p of rawPurchases) {
         const newId = crypto.randomUUID();
+        const { data: existing } = await supabaseAdmin.from('purchases').select('id').eq('legacy_id', p.id).single();
+        const finalId = existing?.id || newId;
+
         const { error } = await supabaseAdmin.from('purchases').upsert({
-          id: newId,
+          id: finalId,
           doc_number: p.invoice_number || p.doc_number || `PUR-${p.id.slice(0, 8)}`,
           supplier_id: mapping.suppliers[p.supplier_id] || null,
           supplier_name: p.supplier_name,
@@ -222,8 +229,9 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           migrated_at: migratedAt
         }, { onConflict: 'legacy_id' });
         if (error) throw error;
-        mapping.purchases[p.id] = newId;
+        mapping.purchases[p.id] = finalId;
       }
+
 
       // 10. Import Purchase Items
       console.log('Importing purchase items...');
