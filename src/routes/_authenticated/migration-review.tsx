@@ -35,7 +35,7 @@ function MigrationReviewPage() {
   })
 
   const runDryRun = useServerFn(runRealDryRun)
-  const runImport = useServerFn(runRealFileImport)
+  const runImport = useServerFn(runActualDataImport)
 
 
   const handleRunDryRun = async () => {
@@ -201,5 +201,5 @@ import { Button } from '@/components/ui/button'
 import { RefreshCw, Database as DatabaseIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
 import { runRealDryRun } from '@/lib/migration/dry-run.functions'
-import { runRealFileImport } from '@/lib/migration/real-import.functions'
+import { runActualDataImport } from '@/lib/migration/real-import.functions'
 import { toast } from 'sonner'
