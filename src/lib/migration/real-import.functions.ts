@@ -167,7 +167,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         const newId = crypto.randomUUID();
         const { error } = await supabaseAdmin.from('sales').upsert({
           id: newId,
-          doc_number: s.invoice_number || s.doc_number,
+          doc_number: s.invoice_number || s.doc_number || `SAL-${s.id.slice(0, 8)}`,
           customer_id: mapping.customers[s.customer_id] || null,
           customer_name: s.customer_name,
           status: (s.status as any) || 'posted',
@@ -203,7 +203,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         const newId = crypto.randomUUID();
         const { error } = await supabaseAdmin.from('purchases').upsert({
           id: newId,
-          doc_number: p.invoice_number || p.doc_number,
+          doc_number: p.invoice_number || p.doc_number || `PUR-${p.id.slice(0, 8)}`,
           supplier_id: mapping.suppliers[p.supplier_id] || null,
           supplier_name: p.supplier_name,
           status: (p.status as any) || 'posted',
