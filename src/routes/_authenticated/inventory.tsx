@@ -149,7 +149,7 @@ function InventoryPage() {
                       <TableCell className="text-left">
                         <div className="flex justify-end gap-1">
                           <Button variant="ghost" size="icon" asChild>
-                            <Link to="/products/$id" params={{ id: p.id }}>
+                            <Link to="/inventory">
                               <HistoryIcon className="size-4" />
                             </Link>
                           </Button>

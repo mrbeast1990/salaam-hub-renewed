@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/_authenticated/inventory_")({
+export const Route = createFileRoute("/_authenticated/inventory/$id")({
   path: "/inventory/$id",
   head: () => ({
     meta: [{ title: "تفاصيل الصنف — سلام" }],
