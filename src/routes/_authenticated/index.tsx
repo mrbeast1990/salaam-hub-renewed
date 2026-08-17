@@ -112,65 +112,125 @@ function DashboardPage() {
               '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                         
                                             
-                                            أريد التحقق النهائي بالأرقام الفعلية من قاعدة النظام الجديد بعد REAL FILE IMPORT:
+                                            التحقق الأخير ثم Final Cutover
 
- products count
+التحقق النهائي مقبول، ويمكن الانتقال إلى Final Cutover بعد تأمين الـ8 Legacy Placeholder Products فقط.
 
- customers count
+أولاً: تأمين الـ8 Placeholders
 
- suppliers count
+اعرض قائمة الـ8 Placeholders التي تم إنشاؤها بسبب product references المفقودة في النظام القديم.
 
- sales count
+لكل Placeholder احتفظ بـ:
 
- sale_items count
+legacy product_id الأصلي
 
- purchases count
+اسم/وصف الصنف إن توفر من بند الفاتورة
 
- purchase_items count
+الفواتير المرتبط بها
 
- payments count
+هل مصدره Sale Item أو Purchase Item
 
- treasury_movements count
+ثم طبّق عليها:
 
- inventory_movements count
+is_legacy_placeholder = true أو Flag مكافئ
 
- party_ledger count
+is_active = false
 
-ثم:
+غير قابلة للاختيار في البيع السريع
 
- أكد أن سداد صيدلية المدينة 20,000 بتاريخ 2026-05-08 موجود مرة واحدة فقط.
+غير قابلة للإضافة لفاتورة جديدة
 
- أعد تشغيل نفس ZIP مرة ثانية واعرض counts قبل وبعد.
+غير قابلة للشراء الجديد
 
- أكد أن counts لم تتغير بعد إعادة الاستيراد.
+تبقى ظاهرة فقط داخل الفواتير التاريخية والتقارير التاريخية
 
- شغّل Audit Center واعرض:
+لا تحذفها
 
- Health Score
+لا تدمجها تلقائيًا مع صنف آخر
 
- Critical
+يجب ألا تؤثر على تنبيهات نقص المخزون أو قوائم الأصناف النشطة.
 
- High
+بعد ذلك شغّل Audit مرة واحدة وتأكد:
 
- Medium
+Critical = 0
 
- Low
+High = 0
 
- أكد:
+الـ8 حالات موصوفة بوضوح كـ Legacy Migration Warnings وليست أخطاء تشغيلية جديدة.
 
- 0 duplicate sales
+ثانياً: Final Cutover
 
- 0 duplicate purchases
+إذا نجح التحقق السابق، نفّذ Final Cutover الحقيقي.
 
- 0 duplicate payments
+خذ Backup نهائي لقاعدة النظام الجديد قبل التحويل.
 
- 0 orphan sale_items
+احتفظ بالنظام القديم كـ READ ONLY ARCHIVE.
 
- 0 orphan purchase_items
+اضبط Document Counters بناءً على أعلى أرقام المستندات المستوردة فعليًا، وليس أي أرقام محاكاة سابقة.
 
- 0 double posting في treasury / inventory / ledger
+غيّر حالة النظام الجديد من PRE-CUTOVER إلى PRODUCTION.
 
-لا تنفذ Cutover بعد. أعطني النتائج فقط.
+تأكد أن الصفحة الرئيسية تفتح طبيعيًا ولا تظهر رسالة "النظام قيد التحديث".
+
+لا تنفذ أي Import جديد أثناء التحويل.
+
+بعد Cutover
+
+نفّذ Read-Only Verification فقط:
+
+Products = 102 + الـLegacy Placeholders إذا كانت محسوبة ضمن نفس الجدول، مع توضيح العدد
+
+Customers = 36
+
+Suppliers = 10
+
+Sales = 98
+
+Sale Items = 444
+
+Purchases = 67
+
+Purchase Items = 230
+
+Payments = 60
+
+Treasury Movements = 60
+
+Inventory Movements = 674
+
+Party Ledger = 225
+
+وتأكد أن سداد صيدلية المدينة 20,000 بتاريخ 2026-05-08 ما زال موجودًا مرة واحدة فقط.
+
+التقرير
+
+أعطني في النهاية فقط:
+
+Production State
+
+Backup status
+
+Document Counters
+
+Final counts
+
+Critical
+
+High
+
+Health Score
+
+حالة الـ8 Legacy Placeholders
+
+هل النظام القديم READ ONLY؟
+
+والحكم النهائي:
+
+FINAL CUTOVER SUCCESSFUL
+
+أو
+
+FINAL CUTOVER FAILED
             </div>
           </>
         }

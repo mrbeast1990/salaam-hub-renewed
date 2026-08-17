@@ -25,7 +25,14 @@ export const getAuditSummary = createServerFn({ method: "GET" })
       ...(Array.isArray(salesWithoutItems) ? salesWithoutItems : []).map((f: any) => ({ ...f, severity: 'high', module: 'sales' })),
       ...(Array.isArray(inventoryMismatches) ? inventoryMismatches : []).map((f: any) => ({ ...f, severity: 'medium', module: 'inventory' })),
       ...(Array.isArray(ledgerMismatches) ? ledgerMismatches : []).map((f: any) => ({ ...f, severity: 'high', module: 'parties' }))
-    ];
+    ].filter(f => {
+      // Treat placeholder issues as warnings, not errors
+      if (f.message?.includes('LEGACY_MISSING') || (f.product_sku && f.product_sku.includes('LEGACY_MISSING'))) {
+        f.severity = 'low';
+        f.type = 'Legacy Migration Warning';
+      }
+      return true;
+    });
 
     if (findings.length > 0) {
       const highImpact = findings.filter(f => f.severity === 'high').length;

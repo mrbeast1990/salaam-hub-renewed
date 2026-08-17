@@ -765,6 +765,7 @@ export type Database = {
           expiry_date: string | null
           id: string
           image_url: string | null
+          is_legacy_placeholder: boolean | null
           legacy_id: string | null
           legacy_stored_quantity: number | null
           legacy_table: string | null
@@ -789,6 +790,7 @@ export type Database = {
           expiry_date?: string | null
           id?: string
           image_url?: string | null
+          is_legacy_placeholder?: boolean | null
           legacy_id?: string | null
           legacy_stored_quantity?: number | null
           legacy_table?: string | null
@@ -813,6 +815,7 @@ export type Database = {
           expiry_date?: string | null
           id?: string
           image_url?: string | null
+          is_legacy_placeholder?: boolean | null
           legacy_id?: string | null
           legacy_stored_quantity?: number | null
           legacy_table?: string | null
