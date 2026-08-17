@@ -6,7 +6,6 @@ import path from 'path';
 import { parse } from 'csv-parse/sync';
 import crypto from 'crypto';
 
-
 const EXPORT_PATH = '/tmp/legacy-export';
 
 export const runActualDataImport = createServerFn({ method: "POST" })
@@ -32,7 +31,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
 
     try {
       // 2. Load and verify CSVs
-      const loadCsv = (file: string) => {
+      const loadCsv = (file: string): any[] => {
         const fullPath = path.join(EXPORT_PATH, file);
         if (!fs.existsSync(fullPath)) return [];
         const content = fs.readFileSync(fullPath, 'utf8');
@@ -171,7 +170,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           doc_number: s.doc_number,
           customer_id: mapping.customers[s.customer_id] || null,
           customer_name: s.customer_name,
-          status: s.status as any || 'posted',
+          status: (s.status as any) || 'posted',
           total: Number(s.total || 0),
           paid: Number(s.paid || 0),
           payment_method: s.payment_method,
@@ -207,7 +206,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           doc_number: p.doc_number,
           supplier_id: mapping.suppliers[p.supplier_id] || null,
           supplier_name: p.supplier_name,
-          status: p.status as any || 'posted',
+          status: (p.status as any) || 'posted',
           total: Number(p.total || 0),
           paid: Number(p.paid || 0),
           payment_method: p.payment_method,
@@ -239,10 +238,10 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       for (const pay of rawPayments) {
         await supabaseAdmin.from('payments').upsert({
           doc_number: pay.doc_number,
-          party_type: pay.party_type as any,
+          party_type: (pay.party_type as any),
           party_id: pay.party_type === 'customer' ? mapping.customers[pay.party_id] : mapping.suppliers[pay.party_id],
           amount: Number(pay.amount),
-          direction: pay.direction as any,
+          direction: (pay.direction as any),
           method: pay.method,
           transaction_date: pay.transaction_date,
           legacy_id: pay.id,
@@ -262,15 +261,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         });
       }
 
-      // 13. Rebuild Ledgers (Calling RPCs if possible, or manual insert for migration)
-      // Since RPCs are designed for single transactions, for migration we might need to populate tables directly or call RPCs.
-      // But for the sake of speed and atomicity in this script, we populated the documents.
-      // We must now ensure inventory_movements, party_ledger, and treasury_movements are populated.
-      // The system uses views for balance, but ledgers are the truth.
-      
-      // Let's call a specialized migration RPC or insert directly.
-      // Direct insert into ledgers to match legacy exactly.
-      
+      // 13. Rebuild Ledgers
       console.log('Rebuilding Inventory Movements...');
       for (const item of rawSaleItems) {
           await supabaseAdmin.from('inventory_movements').insert({
@@ -317,14 +308,17 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           }
       }
       for (const pay of rawPayments) {
-          await supabaseAdmin.from('treasury_movements').insert({
-              direction: pay.direction as any,
-              amount: Number(pay.amount),
-              method: pay.method || 'cash',
-              source_type: 'payment',
-              source_id: (await supabaseAdmin.from('payments').select('id').eq('legacy_id', pay.id).single()).data?.id as any,
-              transaction_date: pay.transaction_date
-          });
+          const newPay = (await supabaseAdmin.from('payments').select('id').eq('legacy_id', pay.id).single()).data;
+          if (newPay) {
+            await supabaseAdmin.from('treasury_movements').insert({
+                direction: (pay.direction as any),
+                amount: Number(pay.amount),
+                method: pay.method || 'cash',
+                source_type: 'payment',
+                source_id: newPay.id,
+                transaction_date: pay.transaction_date
+            });
+          }
       }
 
       console.log('Rebuilding Party Ledger...');
@@ -351,15 +345,18 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           });
       }
       for (const pay of rawPayments) {
-          await supabaseAdmin.from('party_ledger').insert({
-              party_type: pay.party_type as any,
-              party_id: pay.party_type === 'customer' ? mapping.customers[pay.party_id] : mapping.suppliers[pay.party_id],
-              debit: pay.direction === 'out' ? Number(pay.amount) : 0,
-              credit: pay.direction === 'in' ? Number(pay.amount) : 0,
-              source_type: 'payment',
-              source_id: (await supabaseAdmin.from('payments').select('id').eq('legacy_id', pay.id).single()).data?.id as any,
-              transaction_date: pay.transaction_date
-          });
+          const newPay = (await supabaseAdmin.from('payments').select('id').eq('legacy_id', pay.id).single()).data;
+          if (newPay) {
+            await supabaseAdmin.from('party_ledger').insert({
+                party_type: (pay.party_type as any),
+                party_id: pay.party_type === 'customer' ? mapping.customers[pay.party_id] : mapping.suppliers[pay.party_id],
+                debit: pay.direction === 'out' ? Number(pay.amount) : 0,
+                credit: pay.direction === 'in' ? Number(pay.amount) : 0,
+                source_type: 'payment',
+                source_id: newPay.id,
+                transaction_date: pay.transaction_date
+            });
+          }
       }
 
       // Final Audit
