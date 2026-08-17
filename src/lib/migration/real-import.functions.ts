@@ -4,6 +4,8 @@ import { getAuditSummary } from "../reports/audit.functions";
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
+import crypto from 'crypto';
+
 
 const EXPORT_PATH = '/tmp/legacy-export';
 
@@ -276,7 +278,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
               qty_delta: -Number(item.qty),
               source_type: 'sale',
               source_id: mapping.sales[item.sale_id],
-              transaction_date: rawSales.find(s => s.id === item.sale_id)?.transaction_date || migratedAt
+              transaction_date: rawSales.find((s: any) => s.id === item.sale_id)?.transaction_date || migratedAt
           });
       }
       for (const item of rawPurchaseItems) {
@@ -285,7 +287,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
               qty_delta: Number(item.qty),
               source_type: 'purchase',
               source_id: mapping.purchases[item.purchase_id],
-              transaction_date: rawPurchases.find(p => p.id === item.purchase_id)?.transaction_date || migratedAt
+              transaction_date: rawPurchases.find((p: any) => p.id === item.purchase_id)?.transaction_date || migratedAt
           });
       }
 
