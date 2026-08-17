@@ -1,162 +1,223 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/page-header";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Plus, Search, Package, Image as ImageIcon, Edit2, AlertCircle, History as HistoryIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ProductForm } from "@/components/inventory/product-form";
+import { 
+  ArrowRight, 
+  Package, 
+  History, 
+  TrendingUp, 
+  AlertCircle,
+  Loader2,
+  Calendar,
+  Tag
+} from "lucide-react";
+import { formatCurrency, formatNumber } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { getProductMovements } from "@/lib/inventory/inventory.functions";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/inventory")({
-  head: () => ({
-    meta: [{ title: "الأصناف والمخزون — سلام" }],
-  }),
-  component: InventoryPage,
+  component: ProductDetailsPage,
 });
 
-function InventoryPage() {
-  const [search, setSearch] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const queryClient = useQueryClient();
+function ProductDetailsPage() {
+  const navigate = useNavigate();
+  // Using a search param for now to avoid route generation issues in this turn
+  const { id } = Route.useSearch<{ id?: string }>();
+  const fetchMovements = useServerFn(getProductMovements);
 
-  const { data: products, isPending, isError, refetch } = useQuery({
-    queryKey: ["products"],
+  const { data: product, isPending: isProductPending } = useQuery({
+    queryKey: ["product", id],
     queryFn: async () => {
-      const [{ data: pData, error: pErr }, { data: sData, error: sErr }] = await Promise.all([
-        supabase.from("products").select("*, categories(name)").order("name"),
-        supabase.from("v_product_stock").select("product_id, on_hand"),
-      ]);
-      if (pErr) throw pErr;
-      if (sErr) throw sErr;
-
-      const stockMap = new Map(sData.map((s) => [s.product_id, s.on_hand]));
-
-      return pData.map((p) => ({
-        ...p,
-        on_hand: stockMap.get(p.id) || 0,
-        category_name: (p as any).categories?.name || "بدون تصنيف",
-      }));
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, categories(name)")
+        .eq("id", id)
+        .single();
+      if (error) throw error;
+      
+      const { data: stockData } = await supabase
+        .from("v_product_stock")
+        .select("on_hand")
+        .eq("product_id", id)
+        .single();
+        
+      return { ...data, on_hand: stockData?.on_hand || 0 };
     },
+    enabled: !!id
   });
 
-  const filtered = products?.filter((p) => 
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.barcode?.toLowerCase().includes(search.toLowerCase()) ||
-    p.sku?.toLowerCase().includes(search.toLowerCase())
-  );
+  const { data: movements, isPending: isMovementsPending } = useQuery({
+    queryKey: ["product-movements", id],
+    queryFn: () => fetchMovements({ data: { product_id: id! } }),
+    enabled: !!id
+  });
 
-  const handleEdit = (product: any) => {
-    setSelectedProduct(product);
-    setIsFormOpen(true);
-  };
+  if (!id) {
+     return <div className="text-center py-20">يجب اختيار صنف</div>;
+  }
 
-  const handleAdd = () => {
-    setSelectedProduct(null);
-    setIsFormOpen(true);
-  };
+  if (isProductPending) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="size-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="text-center py-20">
+        <AlertCircle className="size-12 text-destructive mx-auto mb-4" />
+        <h2 className="text-xl font-bold">الصنف غير موجود</h2>
+        <Button variant="link" onClick={() => navigate({ to: "/inventory" })}>العودة للمخزون</Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="الأصناف والمخزون"
-        action={
-          <Button onClick={handleAdd}>
-            <Plus className="size-4 ml-2" />
-            إضافة صنف
-          </Button>
-        }
-      />
-
-      <div className="relative">
-        <Search className="absolute right-3 top-2.5 size-4 text-muted-foreground" />
-        <Input
-          placeholder="بحث بالاسم، الباركود، أو الكود الداخلي..."
-          className="pr-9"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={() => navigate({ to: "/inventory" })}>
+          <ArrowRight className="size-5" />
+        </Button>
+        <PageHeader title={product.name} description={product.sku || product.barcode || "تفاصيل وحركة الصنف"} />
       </div>
 
-      <Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="md:col-span-2 border-none shadow-sm overflow-hidden">
+          <CardHeader className="bg-muted/30 pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Package className="size-5 text-primary" />
+              المعلومات الأساسية
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">التصنيف</p>
+                <p className="font-bold">{(product as any).categories?.name || "بدون تصنيف"}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">الباركود</p>
+                <p className="font-mono font-bold text-sm">{product.barcode || "—"}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">الكود الداخلي</p>
+                <p className="font-mono font-bold text-sm">{product.sku || "—"}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">سعر الشراء</p>
+                <p className="font-black text-lg tabular-nums">{formatCurrency(product.cost_price)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">سعر البيع</p>
+                <p className="font-black text-lg tabular-nums text-primary">{formatCurrency(product.sale_price)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">الحد الأدنى</p>
+                <p className="font-bold tabular-nums">{formatNumber(product.min_stock)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-sm bg-primary/5 border-primary/10">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="size-5 text-primary" />
+              الرصيد الحالي
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center py-6">
+            <div className={`text-5xl font-black tabular-nums ${product.on_hand <= product.min_stock ? 'text-destructive' : 'text-primary'}`}>
+              {formatNumber(product.on_hand)}
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">وحدة متوفرة في المخزن</p>
+            {product.on_hand <= product.min_stock && (
+              <Badge variant="destructive" className="mt-4 gap-1">
+                <AlertCircle className="size-3" />
+                رصيد منخفض
+              </Badge>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="border-none shadow-sm overflow-hidden">
+        <CardHeader className="bg-muted/30 flex flex-row items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <History className="size-5 text-primary" />
+            سجل حركات المخزون
+          </CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">الصورة</TableHead>
-                  <TableHead>الصنف</TableHead>
-                  <TableHead>التصنيف</TableHead>
-                  <TableHead>الباركود</TableHead>
-                  <TableHead className="text-left">سعر البيع</TableHead>
-                  <TableHead className="text-left">الرصيد</TableHead>
-                  <TableHead className="w-[100px]"></TableHead>
+                  <TableHead className="w-[120px]">التاريخ</TableHead>
+                  <TableHead className="w-[100px]">النوع</TableHead>
+                  <TableHead>الكمية</TableHead>
+                  <TableHead>التكلفة</TableHead>
+                  <TableHead>البيان</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isPending ? (
+                {isMovementsPending ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10">
-                      <Loader2 className="size-8 animate-spin mx-auto text-muted-foreground" />
+                    <TableCell colSpan={5} className="text-center py-10">
+                      <Loader2 className="size-6 animate-spin mx-auto text-muted-foreground" />
                     </TableCell>
                   </TableRow>
-                ) : isError ? (
+                ) : movements?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10">
-                      <div className="flex flex-col items-center gap-2">
-                        <AlertCircle className="size-8 text-destructive" />
-                        <p>فشل تحميل البيانات</p>
-                        <Button variant="outline" size="sm" onClick={() => refetch()}>إعادة المحاولة</Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : filtered?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                      لا توجد أصناف مطابقة.
+                    <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                      لا توجد حركات مخزون مسجلة لهذا الصنف.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filtered?.map((p) => (
-                    <TableRow key={p.id} className={!p.active ? "opacity-50" : ""}>
-                      <TableCell>
-                        <div className="size-10 rounded border bg-muted flex items-center justify-center overflow-hidden">
-                          {p.image_url ? (
-                            <img src={p.image_url} alt={p.name} className="size-full object-cover" />
-                          ) : (
-                            <ImageIcon className="size-5 text-muted-foreground/50" />
-                          )}
-                        </div>
+                  movements?.map((m: any) => (
+                    <TableRow key={m.id}>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {format(new Date(m.transaction_date), "yyyy-MM-dd", { locale: ar })}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{p.name}</div>
-                        {p.sku && <div className="text-xs text-muted-foreground">{p.sku}</div>}
+                        <Badge 
+                          variant="outline" 
+                          className={`text-[10px] font-bold ${
+                            m.qty_delta > 0 
+                              ? "border-green-200 text-green-700 bg-green-50" 
+                              : "border-red-200 text-red-700 bg-red-50"
+                          }`}
+                        >
+                          {m.source_type === 'sale' ? 'بيع' : 
+                           m.source_type === 'purchase' ? 'شراء' :
+                           m.source_type === 'adjustment' ? 'تعديل' : m.source_type}
+                        </Badge>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-normal">{p.category_name}</Badge>
+                      <TableCell className={`font-bold tabular-nums ${m.qty_delta > 0 ? "text-green-600" : "text-red-600"}`}>
+                        {m.qty_delta > 0 ? "+" : ""}{formatNumber(m.qty_delta)}
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{p.barcode || "—"}</TableCell>
-                      <TableCell className="text-left">{p.sale_price.toFixed(2)}</TableCell>
-                      <TableCell className={`text-left font-bold ${Number(p.on_hand) <= Number(p.min_stock) ? 'text-destructive' : ''}`}>
-                        {p.on_hand}
+                      <TableCell className="text-xs tabular-nums text-muted-foreground">
+                        {formatCurrency(m.unit_cost)}
                       </TableCell>
-                      <TableCell className="text-left">
-                        <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link to="/inventory">
-                              <HistoryIcon className="size-4" />
-                            </Link>
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
-                            <Edit2 className="size-4" />
-                          </Button>
-                        </div>
+                      <TableCell className="text-xs max-w-[200px] truncate">
+                        {m.notes || "—"}
                       </TableCell>
                     </TableRow>
                   ))
@@ -166,20 +227,6 @@ function InventoryPage() {
           </div>
         </CardContent>
       </Card>
-
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedProduct ? `تعديل الصنف: ${selectedProduct.name}` : "إضافة صنف جديد"}
-            </DialogTitle>
-          </DialogHeader>
-          <ProductForm 
-            product={selectedProduct} 
-            onSuccess={() => setIsFormOpen(false)} 
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
