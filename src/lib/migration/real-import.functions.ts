@@ -244,7 +244,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         const { error } = await supabaseAdmin.from('payments').upsert({
           doc_number: docNum,
           party_type: (pay.entity_type || pay.party_type) as any,
-          party_id: partyId || null,
+          party_id: partyId as any,
           amount: Number(pay.amount),
           direction: (pay.direction || (pay.entity_type === 'customer' ? 'in' : 'out')) as any,
           method: pay.method,
