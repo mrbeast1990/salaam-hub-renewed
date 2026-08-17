@@ -77,8 +77,11 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       console.log('Importing products...');
       for (const p of rawProducts) {
         const newId = crypto.randomUUID();
+        const { data: existing } = await supabaseAdmin.from('products').select('id').eq('legacy_id', p.id).single();
+        const finalId = existing?.id || newId;
+
         const { error } = await supabaseAdmin.from('products').upsert({
-          id: newId,
+          id: finalId,
           sku: p.sku || null,
           barcode: p.barcode || null,
           name: p.name,
@@ -93,15 +96,18 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           migrated_at: migratedAt
         }, { onConflict: 'legacy_id' });
         if (error) throw error;
-        mapping.products[p.id] = newId;
+        mapping.products[p.id] = finalId;
       }
 
       // 4. Import Customers
       console.log('Importing customers...');
       for (const c of rawCustomers) {
         const newId = crypto.randomUUID();
+        const { data: existing } = await supabaseAdmin.from('customers').select('id').eq('legacy_id', c.id).single();
+        const finalId = existing?.id || newId;
+
         const { error } = await supabaseAdmin.from('customers').upsert({
-          id: newId,
+          id: finalId,
           name: c.name,
           phone: c.phone || null,
           address: c.address || null,
@@ -112,8 +118,9 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           migrated_at: migratedAt
         }, { onConflict: 'legacy_id' });
         if (error) throw error;
-        mapping.customers[c.id] = newId;
+        mapping.customers[c.id] = finalId;
       }
+
 
       // 5. Import Suppliers
       console.log('Importing suppliers...');
