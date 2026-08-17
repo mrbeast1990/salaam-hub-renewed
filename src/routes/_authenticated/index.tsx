@@ -130,7 +130,7 @@ function DashboardPage() {
             </div>
             <div>
               <div className="text-[9px] text-muted-foreground">الزبائن</div>
-              <div className="text-sm font-bold tabular-nums">{data?.balances.receivablesCount || 0} زبون</div>
+              <div className="text-sm font-bold tabular-nums">{data?.balances.receivables || 0} ج.م</div>
             </div>
           </CardContent>
         </Card>
