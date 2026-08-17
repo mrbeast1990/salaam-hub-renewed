@@ -38,10 +38,10 @@ import { SaleDetails } from "@/components/sales/sale-details";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/sales")({
-  head: () => ({
-    meta: [{ title: "سجل المبيعات — سلام" }],
-  }),
-  component: SalesPage,
+  beforeLoad: () => {
+    // Redirect to POS by default as requested in the plan
+    throw redirect({ to: "/pos" });
+  },
 });
 
 function SalesPage() {
