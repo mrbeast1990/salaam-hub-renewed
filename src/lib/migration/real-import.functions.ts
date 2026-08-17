@@ -16,6 +16,17 @@ export const runActualDataImport = createServerFn({ method: "POST" })
     const migratedAt = new Date().toISOString();
 
     try {
+      // 0. Cleanup ALL data
+      console.log('Cleaning up existing data...');
+      const tablesToClear = [
+        'inventory_movements', 'party_ledger', 'treasury_movements',
+        'sale_items', 'purchase_items', 'sales', 'purchases',
+        'payments', 'products', 'customers', 'suppliers', 'migration_batches'
+      ];
+      for (const t of tablesToClear) {
+        await supabaseAdmin.from(t).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      }
+
       // 1. Setup Batch
       await supabaseAdmin.from("migration_batches" as any).insert({
         id: batchId,
@@ -72,6 +83,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         sales: {},
         purchases: {}
       };
+
 
       // 3. Import Products
       console.log('Importing products...');
