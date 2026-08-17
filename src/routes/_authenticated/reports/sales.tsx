@@ -6,22 +6,41 @@ import { useServerFn } from '@tanstack/react-start';
 import { getSalesReport } from '@/lib/reports/sales.functions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatNumber } from "@/lib/utils";
+import { ReportFilters } from "@/components/reports/report-filters";
+import { useState } from "react";
+import { subDays, format } from "date-fns";
 
 export const Route = createFileRoute('/_authenticated/reports/sales')({
   component: SalesReportPage,
 });
 
 function SalesReportPage() {
-  const fetchReport = useServerFn(getSalesReport);
-  const { data, isPending } = useQuery({
-    queryKey: ['sales-report'],
-    queryFn: () => fetchReport({})
+  const [filters, setFilters] = useState({
+    from_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    to_date: format(new Date(), "yyyy-MM-dd"),
   });
+  
+  const fetchReport = useServerFn(getSalesReport);
+  const { data, isPending, refetch } = useQuery({
+    queryKey: ['sales-report', filters],
+    queryFn: () => fetchReport({ data: filters })
+  });
+
+  const handlePrint = () => {
+    const params = new URLSearchParams(filters as any).toString();
+    window.open(`/api/print/reports/sales?${params}`, '_blank');
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader title="تقرير المبيعات" description="تفاصيل المبيعات الصادرة والآجلة والخصومات" />
       
+      <ReportFilters 
+        onFilter={setFilters} 
+        onPrint={handlePrint}
+        isLoading={isPending}
+      />
+
       {isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : (

@@ -6,17 +6,30 @@ import { useServerFn } from '@tanstack/react-start';
 import { getPurchasesReport } from '@/lib/reports/purchases.functions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatNumber } from "@/lib/utils";
+import { ReportFilters } from "@/components/reports/report-filters";
+import { useState } from "react";
+import { subDays, format } from "date-fns";
 
 export const Route = createFileRoute('/_authenticated/reports/purchases')({
   component: PurchasesReportPage,
 });
 
 function PurchasesReportPage() {
+  const [filters, setFilters] = useState({
+    from_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    to_date: format(new Date(), "yyyy-MM-dd"),
+  });
+
   const fetchReport = useServerFn(getPurchasesReport);
   const { data, isPending } = useQuery({
-    queryKey: ['purchases-report'],
-    queryFn: () => fetchReport({})
+    queryKey: ['purchases-report', filters],
+    queryFn: () => fetchReport({ data: filters })
   });
+
+  const handlePrint = () => {
+    const params = new URLSearchParams(filters as any).toString();
+    window.open(`/api/print/reports/purchases?${params}`, '_blank');
+  };
 
   // Removed local money function
 
@@ -24,6 +37,12 @@ function PurchasesReportPage() {
     <div className="space-y-6">
       <PageHeader title="تقرير المشتريات" description="تحليل فواتير الشراء والتزامات الموردين" />
       
+      <ReportFilters 
+        onFilter={setFilters} 
+        onPrint={handlePrint}
+        isLoading={isPending}
+      />
+
       {isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : (

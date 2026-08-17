@@ -7,17 +7,30 @@ import { getProfitReport } from '@/lib/reports/sales.functions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, ArrowDown, ArrowUp, Banknote } from 'lucide-react';
 import { formatCurrency } from "@/lib/utils";
+import { ReportFilters } from "@/components/reports/report-filters";
+import { useState } from "react";
+import { subDays, format } from "date-fns";
 
 export const Route = createFileRoute('/_authenticated/reports/profits')({
   component: ProfitReportPage,
 });
 
 function ProfitReportPage() {
+  const [filters, setFilters] = useState({
+    from_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    to_date: format(new Date(), "yyyy-MM-dd"),
+  });
+  
   const fetchReport = useServerFn(getProfitReport);
   const { data, isPending } = useQuery({
-    queryKey: ['profit-report'],
-    queryFn: () => fetchReport({})
+    queryKey: ['profit-report', filters],
+    queryFn: () => fetchReport({ data: filters })
   });
+
+  const handlePrint = () => {
+    const params = new URLSearchParams(filters as any).toString();
+    window.open(`/api/print/reports/profits?${params}`, '_blank');
+  };
 
   // Removed local money function to use global formatCurrency
 
@@ -25,6 +38,12 @@ function ProfitReportPage() {
     <div className="space-y-6">
       <PageHeader title="تقرير الأرباح" description="تحليل الإيرادات والتكاليف وصافي الربح" />
       
+      <ReportFilters 
+        onFilter={setFilters} 
+        onPrint={handlePrint}
+        isLoading={isPending}
+      />
+
       {isPending ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 w-full" />)}
