@@ -112,7 +112,65 @@ function DashboardPage() {
               '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                         
                                             
-                                            إذا رجع بهذه الأرقام وكانت نظيفة، ننتقل مباشرة للـFinal Cutover.
+                                            أريد التحقق النهائي بالأرقام الفعلية من قاعدة النظام الجديد بعد REAL FILE IMPORT:
+
+ products count
+
+ customers count
+
+ suppliers count
+
+ sales count
+
+ sale_items count
+
+ purchases count
+
+ purchase_items count
+
+ payments count
+
+ treasury_movements count
+
+ inventory_movements count
+
+ party_ledger count
+
+ثم:
+
+ أكد أن سداد صيدلية المدينة 20,000 بتاريخ 2026-05-08 موجود مرة واحدة فقط.
+
+ أعد تشغيل نفس ZIP مرة ثانية واعرض counts قبل وبعد.
+
+ أكد أن counts لم تتغير بعد إعادة الاستيراد.
+
+ شغّل Audit Center واعرض:
+
+ Health Score
+
+ Critical
+
+ High
+
+ Medium
+
+ Low
+
+ أكد:
+
+ 0 duplicate sales
+
+ 0 duplicate purchases
+
+ 0 duplicate payments
+
+ 0 orphan sale_items
+
+ 0 orphan purchase_items
+
+ 0 double posting في treasury / inventory / ledger
+
+لا تنفذ Cutover بعد. أعطني النتائج فقط.
             </div>
           </>
         }
