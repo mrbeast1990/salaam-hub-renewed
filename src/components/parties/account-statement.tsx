@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Printer, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { formatCurrency } from "@/lib/utils";
 
 interface StatementProps {
   partyId: string;
@@ -39,7 +40,7 @@ export function AccountStatement({ partyId, partyName }: StatementProps) {
           <CardContent className="p-4 text-center">
             <p className="text-xs text-muted-foreground">الرصيد الافتتاحي</p>
             <p className="text-xl font-bold tabular-nums">
-              {statement?.openingBalance?.toFixed(2)}
+              {formatCurrency(statement?.openingBalance)}
             </p>
           </CardContent>
         </Card>
@@ -47,7 +48,7 @@ export function AccountStatement({ partyId, partyName }: StatementProps) {
           <CardContent className="p-4 text-center">
             <p className="text-xs text-green-600">إجمالي مدين (عليه)</p>
             <p className="text-xl font-bold tabular-nums text-green-700">
-              {statement?.movements.reduce((sum, m) => sum + Number(m.debit), 0).toFixed(2)}
+              {formatCurrency(statement?.movements.reduce((sum, m) => sum + Number(m.debit), 0))}
             </p>
           </CardContent>
         </Card>
@@ -55,7 +56,7 @@ export function AccountStatement({ partyId, partyName }: StatementProps) {
           <CardContent className="p-4 text-center">
             <p className="text-xs text-red-600">إجمالي دائن (له)</p>
             <p className="text-xl font-bold tabular-nums text-red-700">
-              {statement?.movements.reduce((sum, m) => sum + Number(m.credit), 0).toFixed(2)}
+              {formatCurrency(statement?.movements.reduce((sum, m) => sum + Number(m.credit), 0))}
             </p>
           </CardContent>
         </Card>
@@ -63,7 +64,7 @@ export function AccountStatement({ partyId, partyName }: StatementProps) {
           <CardContent className="p-4 text-center">
             <p className="text-xs text-primary">الرصيد الختامي</p>
             <p className="text-xl font-bold tabular-nums text-primary">
-              {statement?.closingBalance?.toFixed(2)}
+              {formatCurrency(statement?.closingBalance)}
             </p>
           </CardContent>
         </Card>
@@ -99,13 +100,13 @@ export function AccountStatement({ partyId, partyName }: StatementProps) {
                   {move.notes || "—"}
                 </TableCell>
                 <TableCell className="text-left tabular-nums text-green-700">
-                  {move.debit > 0 ? move.debit.toFixed(2) : "—"}
+                  {move.debit > 0 ? formatCurrency(move.debit) : "—"}
                 </TableCell>
                 <TableCell className="text-left tabular-nums text-red-700">
-                  {move.credit > 0 ? move.credit.toFixed(2) : "—"}
+                  {move.credit > 0 ? formatCurrency(move.credit) : "—"}
                 </TableCell>
                 <TableCell className="text-left tabular-nums font-bold">
-                  {move.running_balance.toFixed(2)}
+                  {formatCurrency(move.running_balance)}
                 </TableCell>
               </TableRow>
             ))}

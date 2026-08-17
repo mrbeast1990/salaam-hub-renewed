@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PartyForm } from "@/components/parties/party-form";
 import { AccountStatement } from "@/components/parties/account-statement";
+import { formatCurrency } from "@/lib/utils";
 
 
 export const Route = createFileRoute("/_authenticated/customers")({
@@ -148,7 +149,7 @@ function PartiesPage() {
                           <TableCell dir="ltr" className="text-right">{p.phone || "—"}</TableCell>
                           <TableCell className="max-w-[200px] truncate">{p.address || "—"}</TableCell>
                           <TableCell className={`text-left font-bold tabular-nums ${p.balance > 0 ? 'text-destructive' : p.balance < 0 ? 'text-green-600' : ''}`}>
-                            {p.balance.toLocaleString('ar-EG', { minimumFractionDigits: 2 })}
+                            {formatCurrency(p.balance)}
                           </TableCell>
                           <TableCell className="text-left">
                             <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
