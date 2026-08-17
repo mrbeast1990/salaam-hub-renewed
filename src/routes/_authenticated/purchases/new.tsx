@@ -39,7 +39,7 @@ function NewPurchasePage() {
         </div>
       </div>
 
-      <PurchaseForm onSuccess={() => navigate({ to: "/purchases" })} />
+      <PurchaseForm />
     </div>
   );
 }
