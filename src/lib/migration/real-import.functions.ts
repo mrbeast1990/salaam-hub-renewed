@@ -140,7 +140,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         mapping.suppliers[s.id] = newId;
       }
 
-      // 6. Handle Legacy Placeholders (8 items)
+      // 6. Handle Legacy Placeholders
       console.log('Checking for missing legacy products...');
       const missingProdIds = new Set<string>();
       rawSaleItems.forEach((item: any) => { if (item.product_id && !mapping.products[item.product_id]) missingProdIds.add(item.product_id); });
@@ -167,14 +167,14 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         const newId = crypto.randomUUID();
         const { error } = await supabaseAdmin.from('sales').upsert({
           id: newId,
-          doc_number: s.doc_number,
+          doc_number: s.invoice_number || s.doc_number,
           customer_id: mapping.customers[s.customer_id] || null,
           customer_name: s.customer_name,
           status: (s.status as any) || 'posted',
           total: Number(s.total || 0),
           paid: Number(s.paid || 0),
           payment_method: s.payment_method,
-          transaction_date: s.transaction_date,
+          transaction_date: s.date || s.transaction_date,
           legacy_id: s.id,
           legacy_table: 'sales',
           migration_batch_id: batchId,
@@ -203,14 +203,14 @@ export const runActualDataImport = createServerFn({ method: "POST" })
         const newId = crypto.randomUUID();
         const { error } = await supabaseAdmin.from('purchases').upsert({
           id: newId,
-          doc_number: p.doc_number,
+          doc_number: p.invoice_number || p.doc_number,
           supplier_id: mapping.suppliers[p.supplier_id] || null,
           supplier_name: p.supplier_name,
           status: (p.status as any) || 'posted',
           total: Number(p.total || 0),
           paid: Number(p.paid || 0),
           payment_method: p.payment_method,
-          transaction_date: p.transaction_date,
+          transaction_date: p.date || p.transaction_date,
           legacy_id: p.id,
           legacy_table: 'purchases',
           migration_batch_id: batchId,
@@ -236,19 +236,25 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       // 11. Import Payments
       console.log('Importing payments...');
       for (const pay of rawPayments) {
-        await supabaseAdmin.from('payments').upsert({
-          doc_number: pay.doc_number,
-          party_type: (pay.party_type as any),
-          party_id: pay.party_type === 'customer' ? mapping.customers[pay.party_id] : mapping.suppliers[pay.party_id],
+        const docNum = pay.doc_number || `PAY-${pay.id.slice(0, 8)}`;
+        const partyId = pay.entity_type === 'customer' || pay.party_type === 'customer' 
+            ? mapping.customers[pay.entity_id || pay.party_id] 
+            : mapping.suppliers[pay.entity_id || pay.party_id];
+
+        const { error } = await supabaseAdmin.from('payments').upsert({
+          doc_number: docNum,
+          party_type: (pay.entity_type || pay.party_type) as any,
+          party_id: partyId || null,
           amount: Number(pay.amount),
-          direction: (pay.direction as any),
+          direction: (pay.direction || (pay.entity_type === 'customer' ? 'in' : 'out')) as any,
           method: pay.method,
-          transaction_date: pay.transaction_date,
+          transaction_date: pay.date || pay.transaction_date,
           legacy_id: pay.id,
           legacy_table: 'payments',
           migration_batch_id: batchId,
           migrated_at: migratedAt
         }, { onConflict: 'legacy_id' });
+        if (error) console.error('Payment error:', error);
       }
 
       // 12. Settings
@@ -264,21 +270,23 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       // 13. Rebuild Ledgers
       console.log('Rebuilding Inventory Movements...');
       for (const item of rawSaleItems) {
+          const s = rawSales.find((x: any) => x.id === item.sale_id);
           await supabaseAdmin.from('inventory_movements').insert({
               product_id: mapping.products[item.product_id],
               qty_delta: -Number(item.qty),
               source_type: 'sale',
               source_id: mapping.sales[item.sale_id],
-              transaction_date: rawSales.find((s: any) => s.id === item.sale_id)?.transaction_date || migratedAt
+              transaction_date: s?.date || s?.transaction_date || migratedAt
           });
       }
       for (const item of rawPurchaseItems) {
+          const p = rawPurchases.find((x: any) => x.id === item.purchase_id);
           await supabaseAdmin.from('inventory_movements').insert({
               product_id: mapping.products[item.product_id],
               qty_delta: Number(item.qty),
               source_type: 'purchase',
               source_id: mapping.purchases[item.purchase_id],
-              transaction_date: rawPurchases.find((p: any) => p.id === item.purchase_id)?.transaction_date || migratedAt
+              transaction_date: p?.date || p?.transaction_date || migratedAt
           });
       }
 
@@ -291,7 +299,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
                   method: s.payment_method || 'cash',
                   source_type: 'sale',
                   source_id: mapping.sales[s.id],
-                  transaction_date: s.transaction_date
+                  transaction_date: s.date || s.transaction_date
               });
           }
       }
@@ -303,7 +311,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
                   method: p.payment_method || 'cash',
                   source_type: 'purchase',
                   source_id: mapping.purchases[p.id],
-                  transaction_date: p.transaction_date
+                  transaction_date: p.date || p.transaction_date
               });
           }
       }
@@ -311,12 +319,12 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           const newPay = (await supabaseAdmin.from('payments').select('id').eq('legacy_id', pay.id).single()).data;
           if (newPay) {
             await supabaseAdmin.from('treasury_movements').insert({
-                direction: (pay.direction as any),
+                direction: (pay.direction || (pay.entity_type === 'customer' ? 'in' : 'out')) as any,
                 amount: Number(pay.amount),
                 method: pay.method || 'cash',
                 source_type: 'payment',
                 source_id: newPay.id,
-                transaction_date: pay.transaction_date
+                transaction_date: pay.date || pay.transaction_date
             });
           }
       }
@@ -330,7 +338,7 @@ export const runActualDataImport = createServerFn({ method: "POST" })
               credit: Number(s.paid),
               source_type: 'sale',
               source_id: mapping.sales[s.id],
-              transaction_date: s.transaction_date
+              transaction_date: s.date || s.transaction_date
           });
       }
       for (const p of rawPurchases) {
@@ -341,20 +349,20 @@ export const runActualDataImport = createServerFn({ method: "POST" })
               credit: Number(p.total),
               source_type: 'purchase',
               source_id: mapping.purchases[p.id],
-              transaction_date: p.transaction_date
+              transaction_date: p.date || p.transaction_date
           });
       }
       for (const pay of rawPayments) {
           const newPay = (await supabaseAdmin.from('payments').select('id').eq('legacy_id', pay.id).single()).data;
           if (newPay) {
             await supabaseAdmin.from('party_ledger').insert({
-                party_type: (pay.party_type as any),
-                party_id: pay.party_type === 'customer' ? mapping.customers[pay.party_id] : mapping.suppliers[pay.party_id],
-                debit: pay.direction === 'out' ? Number(pay.amount) : 0,
-                credit: pay.direction === 'in' ? Number(pay.amount) : 0,
+                party_type: (pay.entity_type || pay.party_type) as any,
+                party_id: pay.entity_type === 'customer' || pay.party_type === 'customer' ? mapping.customers[pay.entity_id || pay.party_id] : mapping.suppliers[pay.entity_id || pay.party_id],
+                debit: pay.direction === 'out' || (!pay.direction && pay.entity_type === 'supplier') ? Number(pay.amount) : 0,
+                credit: pay.direction === 'in' || (!pay.direction && pay.entity_type === 'customer') ? Number(pay.amount) : 0,
                 source_type: 'payment',
                 source_id: newPay.id,
-                transaction_date: pay.transaction_date
+                transaction_date: pay.date || pay.transaction_date
             });
           }
       }
