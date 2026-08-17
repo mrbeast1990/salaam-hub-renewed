@@ -15,21 +15,15 @@ export const runActualDataImport = createServerFn({ method: "POST" })
     const batchId = crypto.randomUUID();
     const migratedAt = new Date().toISOString();
 
-    // 1. Setup Batch
-    const { data: batch, error: batchError } = await supabaseAdmin
-      .from("migration_batches" as any)
-      .insert({
+    try {
+      // 1. Setup Batch
+      await supabaseAdmin.from("migration_batches" as any).insert({
         id: batchId,
         status: 'importing',
         started_at: migratedAt,
         summary: { type: 'ACTUAL_DATA_IMPORT', source: 'FILE_UPLOAD' }
-      })
-      .select()
-      .single();
+      });
 
-    if (batchError || !batch) throw batchError;
-
-    try {
       // 2. Load and verify CSVs
       const loadCsv = (file: string): any[] => {
         const fullPath = path.join(EXPORT_PATH, file);
