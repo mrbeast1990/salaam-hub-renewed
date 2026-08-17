@@ -30,11 +30,13 @@ function TreasuryPage() {
 
   const fetchReport = useServerFn(getTreasuryReport);
   
-  const { data, isPending, refetch } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["treasury-report", dateRange.from?.toISOString(), dateRange.to?.toISOString()],
     queryFn: () => fetchReport({ 
-      from_date: dateRange.from?.toISOString().split('T')[0],
-      to_date: dateRange.to?.toISOString().split('T')[0]
+      data: {
+        from_date: dateRange.from?.toISOString().split('T')[0],
+        to_date: dateRange.to?.toISOString().split('T')[0]
+      }
     }),
   });
 
@@ -46,7 +48,7 @@ function TreasuryPage() {
       />
 
       <ReportFilters 
-        onFilter={(range) => setDateRange(range)} 
+        onFilter={(range) => setDateRange({ from: range.from, to: range.to })} 
         onPrint={() => window.open(`/api/print/treasury?from=${dateRange.from?.toISOString().split('T')[0]}&to=${dateRange.to?.toISOString().split('T')[0]}`, '_blank')}
       />
 
