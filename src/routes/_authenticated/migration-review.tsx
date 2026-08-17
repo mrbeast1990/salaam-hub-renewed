@@ -35,7 +35,8 @@ function MigrationReviewPage() {
   })
 
   const runDryRun = useServerFn(runRealDryRun)
-  const runImport = useServerFn(runRealImport)
+  const runImport = useServerFn(runRealFileImport)
+
 
   const handleRunDryRun = async () => {
     const id = toast.loading('جاري تشغيل Dry Run حقيقي...')
