@@ -126,8 +126,11 @@ export const runActualDataImport = createServerFn({ method: "POST" })
       console.log('Importing suppliers...');
       for (const s of rawSuppliers) {
         const newId = crypto.randomUUID();
+        const { data: existing } = await supabaseAdmin.from('suppliers').select('id').eq('legacy_id', s.id).single();
+        const finalId = existing?.id || newId;
+
         const { error } = await supabaseAdmin.from('suppliers').upsert({
-          id: newId,
+          id: finalId,
           name: s.name,
           phone: s.phone || null,
           address: s.address || null,
@@ -138,8 +141,9 @@ export const runActualDataImport = createServerFn({ method: "POST" })
           migrated_at: migratedAt
         }, { onConflict: 'legacy_id' });
         if (error) throw error;
-        mapping.suppliers[s.id] = newId;
+        mapping.suppliers[s.id] = finalId;
       }
+
 
       // 6. Handle Legacy Placeholders
       console.log('Checking for missing legacy products...');
