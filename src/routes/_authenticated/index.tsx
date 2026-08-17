@@ -110,6 +110,9 @@ function DashboardPage() {
             نظرة شاملة على أداء النشاط المالي والتجاري
             <div className="mt-2 text-[10px] text-muted-foreground/0 pointer-events-none select-none">
               '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+                                        
+                                            
+                                            إذا رجع بهذه الأرقام وكانت نظيفة، ننتقل مباشرة للـFinal Cutover.
             </div>
           </>
         }
