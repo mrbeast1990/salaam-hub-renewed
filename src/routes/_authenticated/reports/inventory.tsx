@@ -6,6 +6,8 @@ import { useServerFn } from '@tanstack/react-start';
 import { getInventoryReport } from '@/lib/reports/inventory.functions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatNumber } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export const Route = createFileRoute('/_authenticated/reports/inventory')({
   component: InventoryReportPage,
@@ -20,7 +22,17 @@ function InventoryReportPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="تقرير المخزون" description="الكميات المتاحة وقيمة المستودع الفعلية" />
+      <div className="flex justify-between items-center">
+        <PageHeader title="تقرير المخزون" description="الكميات المتاحة وقيمة المستودع الفعلية" />
+        <Button 
+          variant="outline" 
+          onClick={() => window.open('/api/print/reports/inventory', '_blank')}
+          className="h-10 border-primary text-primary hover:bg-primary/5"
+        >
+          <Printer className="ml-2 h-4 w-4" />
+          طباعة
+        </Button>
+      </div>
       
       {isPending ? (
         <Skeleton className="h-64 w-full" />

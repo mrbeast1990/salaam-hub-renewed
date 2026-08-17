@@ -12,6 +12,7 @@ import {
   Save,
   Barcode
 } from "lucide-react";
+import { formatCurrency, formatNumber } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -128,8 +129,8 @@ export function POSProducts({ onAdd }: { onAdd: (product: any) => void }) {
                     {product.name}
                   </div>
                   <div className="flex justify-between items-end">
-                    <span className="text-primary font-mono font-bold">{product.sale_price.toFixed(2)}</span>
-                    <span className="text-[10px] text-muted-foreground">رصيد: {product.on_hand}</span>
+                    <span className="text-primary font-mono font-bold">{formatCurrency(product.sale_price)}</span>
+                    <span className="text-[10px] text-muted-foreground">رصيد: {formatNumber(product.on_hand)}</span>
                   </div>
                 </CardContent>
               </Card>

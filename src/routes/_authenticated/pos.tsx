@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback, useMemo } from "react";
 import { POSProducts } from "@/components/sales/pos-products";
 import { POSCart } from "@/components/sales/pos-cart";
@@ -8,9 +8,11 @@ import { PartyForm } from "@/components/parties/party-form";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postSale } from "@/lib/sales/sales.functions";
-import { useNavigate } from "@tanstack/react-router";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, History, ShoppingCart } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatCurrency } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
@@ -113,34 +115,51 @@ function POSPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.12))] -m-4 overflow-hidden rtl">
-      {/* Products Area */}
-      <div className="flex-1 p-4 bg-background border-l overflow-hidden flex flex-col">
-        <POSProducts onAdd={handleAddToCart} />
-      </div>
-
-      {/* Cart Area */}
-      <div className="w-[400px] flex flex-col bg-muted/10">
-        <POSCart
-          items={cart}
-          onUpdateQty={handleUpdateQty}
-          onSetQty={handleSetQty}
-          onRemove={handleRemoveFromCart}
-          selectedCustomer={selectedCustomer}
-          onSelectCustomer={setSelectedCustomer}
-          onNewCustomer={() => setIsNewCustomerOpen(true)}
-        />
-        
-        <div className="p-4 bg-background border-t">
-          <Button 
-            className="w-full h-14 text-xl font-black shadow-lg shadow-primary/20"
-            disabled={cart.length === 0}
-            onClick={() => setIsCheckoutOpen(true)}
-          >
-            دفع و اعتماد ({(cartTotal).toFixed(2)})
-          </Button>
+    <div className="flex h-[calc(100vh-theme(spacing.14)-theme(spacing.8))] -m-4 overflow-hidden rtl bg-background">
+      <Tabs defaultValue="pos" className="w-full h-full flex flex-col">
+        <div className="flex items-center justify-between px-4 py-2 border-b">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate({ to: "/sales" })}>
+              <ArrowLeft className="size-5" />
+            </Button>
+            <h1 className="font-bold">نقطة البيع</h1>
+          </div>
+          <TabsList>
+            <TabsTrigger value="pos" className="gap-2"><ShoppingCart className="size-4" /> فاتورة جديدة</TabsTrigger>
+            <TabsTrigger value="history" className="gap-2" onClick={() => navigate({ to: "/sales" })}><History className="size-4" /> سجل المبيعات</TabsTrigger>
+          </TabsList>
         </div>
-      </div>
+
+        <TabsContent value="pos" className="flex-1 overflow-hidden m-0">
+          <div className="flex h-full overflow-hidden">
+            <div className="flex-1 p-4 bg-muted/20 overflow-hidden flex flex-col">
+              <POSProducts onAdd={handleAddToCart} />
+            </div>
+
+            <div className="w-[400px] flex flex-col bg-background border-l shadow-sm">
+              <POSCart
+                items={cart}
+                onUpdateQty={handleUpdateQty}
+                onSetQty={handleSetQty}
+                onRemove={handleRemoveFromCart}
+                selectedCustomer={selectedCustomer}
+                onSelectCustomer={setSelectedCustomer}
+                onNewCustomer={() => setIsNewCustomerOpen(true)}
+              />
+              
+              <div className="p-4 bg-background border-t">
+                <Button 
+                  className="w-full h-14 text-xl font-black shadow-lg shadow-primary/20"
+                  disabled={cart.length === 0}
+                  onClick={() => setIsCheckoutOpen(true)}
+                >
+                  دفع و اعتماد ({formatCurrency(cartTotal)})
+                </Button>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* New Customer Dialog */}
       <Dialog open={isNewCustomerOpen} onOpenChange={setIsNewCustomerOpen}>

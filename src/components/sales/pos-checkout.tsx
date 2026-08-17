@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Minus
 } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,7 +102,7 @@ export function POSCheckout({ total, customer, onConfirm, onCancel, isPending }:
       <div className="p-4 bg-muted/30 rounded-lg space-y-4 border">
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">إجمالي البنود:</span>
-          <span className="font-mono">{total.toFixed(2)}</span>
+          <span className="font-mono">{formatCurrency(total)}</span>
         </div>
         
         <div className="space-y-2">
@@ -120,7 +121,7 @@ export function POSCheckout({ total, customer, onConfirm, onCancel, isPending }:
         <div className="pt-2 border-t border-muted-foreground/20">
           <div className="flex justify-between items-center text-2xl font-black">
             <span>الإجمالي المستحق</span>
-            <span className="font-mono text-primary">{finalTotal.toFixed(2)}</span>
+            <span className="font-mono text-primary">{formatCurrency(finalTotal)}</span>
           </div>
         </div>
 
@@ -144,7 +145,7 @@ export function POSCheckout({ total, customer, onConfirm, onCancel, isPending }:
         {remaining > 0 && (
           <div className="p-2 bg-amber-50 rounded border border-amber-100 flex items-center gap-2 text-amber-800 text-xs">
             <AlertCircle className="size-4" />
-            <span>سيتم تسجيل مبلغ <b>{remaining.toFixed(2)}</b> كمديونية على العميل.</span>
+            <span>سيتم تسجيل مبلغ <b>{formatCurrency(remaining)}</b> كمديونية على العميل.</span>
           </div>
         )}
       </div>

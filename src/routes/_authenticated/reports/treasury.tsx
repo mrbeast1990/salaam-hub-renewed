@@ -7,17 +7,30 @@ import { getTreasuryReport } from '@/lib/reports/treasury.functions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowDownLeft, ArrowUpRight, Banknote } from 'lucide-react';
 import { formatCurrency } from "@/lib/utils";
+import { ReportFilters } from "@/components/reports/report-filters";
+import { useState } from "react";
+import { subDays, format } from "date-fns";
 
 export const Route = createFileRoute('/_authenticated/reports/treasury')({
   component: TreasuryReportPage,
 });
 
 function TreasuryReportPage() {
+  const [filters, setFilters] = useState<{ from_date?: string; to_date?: string }>({
+    from_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    to_date: format(new Date(), "yyyy-MM-dd"),
+  });
+
   const fetchReport = useServerFn(getTreasuryReport);
   const { data, isPending } = useQuery({
-    queryKey: ['treasury-report'],
-    queryFn: () => fetchReport({})
+    queryKey: ['treasury-report', filters],
+    queryFn: () => fetchReport({ data: filters })
   });
+
+  const handlePrint = () => {
+    const params = new URLSearchParams(filters as any).toString();
+    window.open(`/api/print/reports/treasury?${params}`, '_blank');
+  };
 
   // Removed local money function
 
@@ -25,6 +38,12 @@ function TreasuryReportPage() {
     <div className="space-y-6">
       <PageHeader title="تقرير الخزينة" description="حركة السيولة النقدية والمقبوضات والمدفوعات" />
       
+      <ReportFilters 
+        onFilter={setFilters} 
+        onPrint={handlePrint}
+        isLoading={isPending}
+      />
+
       {isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : (

@@ -6,6 +6,7 @@ import {
   User,
   UserPlus
 } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -110,7 +111,7 @@ export function POSCart({
         {selectedCustomer && (
           <div className="text-xs flex justify-between items-center px-1">
             <span className="text-muted-foreground">رصيد العميل الحالي:</span>
-            <span className="font-bold text-primary">0.00</span>
+            <span className="font-bold text-primary">{formatCurrency(0)}</span>
           </div>
         )}
       </div>
@@ -136,7 +137,7 @@ export function POSCart({
                 <TableRow key={item.id} className="group">
                   <TableCell className="py-2">
                     <div className="font-medium text-sm leading-tight">{item.name}</div>
-                    <div className="text-[10px] text-muted-foreground font-mono">{(item.qty * item.sale_price).toFixed(2)}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">{formatCurrency(item.qty * item.sale_price)}</div>
                   </TableCell>
                   <TableCell className="py-2">
                     <div className="flex items-center justify-center gap-1">
@@ -167,7 +168,7 @@ export function POSCart({
                     </div>
                   </TableCell>
                   <TableCell className="py-2 text-left font-mono text-sm">
-                    {item.sale_price.toFixed(2)}
+                    {formatCurrency(item.sale_price)}
                   </TableCell>
                   <TableCell className="py-2 text-center">
                     <Button 
@@ -189,11 +190,11 @@ export function POSCart({
       <div className="p-4 border-t bg-muted/10 space-y-3">
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">المجموع الفرعي</span>
-          <span className="font-mono">{subtotal.toFixed(2)}</span>
+          <span className="font-mono">{formatCurrency(subtotal)}</span>
         </div>
         <div className="flex justify-between items-center text-xl font-black">
           <span>الإجمالي</span>
-          <span className="font-mono text-primary">{subtotal.toFixed(2)}</span>
+          <span className="font-mono text-primary">{formatCurrency(subtotal)}</span>
         </div>
       </div>
     </Card>
