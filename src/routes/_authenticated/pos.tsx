@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postSale } from "@/lib/sales/sales.functions";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, History } from "lucide-react";
+import { ArrowLeft, History, ShoppingCart } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
 
