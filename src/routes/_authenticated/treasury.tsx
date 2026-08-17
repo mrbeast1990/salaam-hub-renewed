@@ -7,7 +7,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTreasuryReport } from "@/lib/reports/treasury.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowDownLeft, ArrowUpRight, Banknote, Search, Calendar, Printer } from "lucide-react";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { ar } from "date-fns/locale";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { useState } from "react";
@@ -23,20 +23,17 @@ export const Route = createFileRoute("/_authenticated/treasury")({
 });
 
 function TreasuryPage() {
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({
-    from: new Date(new Date().setDate(new Date().getDate() - 30)),
-    to: new Date()
+  const [filters, setFilters] = useState<{ from_date?: string; to_date?: string }>({
+    from_date: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    to_date: format(new Date(), "yyyy-MM-dd")
   });
 
   const fetchReport = useServerFn(getTreasuryReport);
   
   const { data, isPending } = useQuery({
-    queryKey: ["treasury-report", dateRange.from?.toISOString(), dateRange.to?.toISOString()],
+    queryKey: ["treasury-report", filters.from_date, filters.to_date],
     queryFn: () => fetchReport({ 
-      data: {
-        from_date: dateRange.from?.toISOString().split('T')[0],
-        to_date: dateRange.to?.toISOString().split('T')[0]
-      }
+      data: filters
     }),
   });
 
@@ -48,8 +45,8 @@ function TreasuryPage() {
       />
 
       <ReportFilters 
-        onFilter={(range) => setDateRange({ from: range.from, to: range.to })} 
-        onPrint={() => window.open(`/api/print/treasury?from=${dateRange.from?.toISOString().split('T')[0]}&to=${dateRange.to?.toISOString().split('T')[0]}`, '_blank')}
+        onFilter={(newFilters) => setFilters(newFilters)} 
+        onPrint={() => window.open(`/api/print/treasury?from=${filters.from_date}&to=${filters.to_date}`, '_blank')}
       />
 
       {isPending ? (
