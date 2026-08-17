@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/page-header";
@@ -147,9 +147,16 @@ function InventoryPage() {
                         {p.on_hand}
                       </TableCell>
                       <TableCell className="text-left">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
-                          <Edit2 className="size-4" />
-                        </Button>
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" asChild>
+                            <Link to="/products/$id" params={{ id: p.id }}>
+                              <History className="size-4" />
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}>
+                            <Edit2 className="size-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
